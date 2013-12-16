@@ -22,16 +22,22 @@
 //  IN THE SOFTWARE.
 
 #import "CCPShellHandler.h"
+#import "CCPWorkspaceManager.h"
+#import "CocoaPods.h"
 
 #import <AppKit/AppKit.h>
 
 #import "CCPRunOperation.h"
 
 static NSOperationQueue *operationQueue;
+static NSString * const DMMCocoaPodsEnvironmentKey = @"COCOAPODS_BUNDLE_ROOT";
+static NSString * const DMMCocoaPodsWrapperName    = @"pod_wrapper";
+static NSString * const DMMCocoaPodsWrapperType    = @"rb";
+static NSString * const RUBY_EXECUTABLE            = @"/usr/bin/ruby";
 
 @implementation CCPShellHandler
 
-+ (void)runShellCommand:(NSString *)command withArgs:(NSArray *)args directory:(NSString *)directory completion:(void (^)(NSTask *t))completion
++ (void)runShellCommand:(NSString *)command withArgs:(NSArray *)args directory:(NSString *)directory completion:(ShellCompletionBlock)completion
 {
 	if (operationQueue == nil) {
 		operationQueue = [NSOperationQueue new];
@@ -42,10 +48,34 @@ static NSOperationQueue *operationQueue;
 	task.currentDirectoryPath = directory;
 	task.launchPath = command;
 	task.arguments  = args;
-    
-    
+    task.environment = @{ DMMCocoaPodsEnvironmentKey : [[self podWrapperPath] stringByDeletingLastPathComponent],
+                          @"HOME" : NSHomeDirectory(),
+                          @"PATH" : @"/usr/bin"
+                          };
+
 	CCPRunOperation *operation = [[CCPRunOperation alloc] initWithTask:task];
 	[operationQueue addOperation:operation];
+}
+
++ (void)runPodWithArguments:(NSArray *)args completion:(ShellCompletionBlock)completion
+{
+    [self runShellCommand:RUBY_EXECUTABLE
+                 withArgs:[@[[self podWrapperPath]] arrayByAddingObjectsFromArray:args]
+                directory:[CCPWorkspaceManager currentWorkspaceDirectoryPath]
+               completion:completion];
+}
+
++ (NSString *)podWrapperPath
+{
+    static NSString * wrapperPath = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSBundle * bundle = [[CocoaPods sharedPlugin] bundle];
+        wrapperPath = [bundle pathForResource:DMMCocoaPodsWrapperName
+                                       ofType:DMMCocoaPodsWrapperType];
+    });
+
+    return wrapperPath;
 }
 
 @end

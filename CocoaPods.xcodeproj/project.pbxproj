@@ -12,10 +12,13 @@
 		8A275F8E178EFD2800FAB421 /* CCPShellHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A275F8C178EFD2800FAB421 /* CCPShellHandler.m */; };
 		8A4623A4178F055600DAB579 /* DefaultPodfile in Resources */ = {isa = PBXBuildFile; fileRef = 8A4623A3178F055600DAB579 /* DefaultPodfile */; };
 		8A4623A5178F055600DAB579 /* DefaultPodfile in Resources */ = {isa = PBXBuildFile; fileRef = 8A4623A3178F055600DAB579 /* DefaultPodfile */; };
+		8A65A4D1185ECB4C00083228 /* bundler in Resources */ = {isa = PBXBuildFile; fileRef = 8A65A4CF185ECB4C00083228 /* bundler */; };
+		8A65A4D2185ECB4C00083228 /* ruby in Resources */ = {isa = PBXBuildFile; fileRef = 8A65A4D0185ECB4C00083228 /* ruby */; };
 		8A80859E178B93C4006E56E3 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A80859D178B93C4006E56E3 /* AppKit.framework */; };
 		8A8085A0178B93C4006E56E3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A80859F178B93C4006E56E3 /* Foundation.framework */; };
 		8A8085A6178B93C4006E56E3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8A8085A4178B93C4006E56E3 /* InfoPlist.strings */; };
 		8A8085A9178B93C4006E56E3 /* CocoaPods.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A8085A8178B93C4006E56E3 /* CocoaPods.m */; };
+		8ACFF0BF185EC3F60083580B /* pod_wrapper.rb in Resources */ = {isa = PBXBuildFile; fileRef = 8ACFF0BE185EC3F60083580B /* pod_wrapper.rb */; };
 		8ADD4FE2178F02650014BEF8 /* CCPDocumentationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8ADD4FE1178F02650014BEF8 /* CCPDocumentationManager.m */; };
 		8ADD4FE3178F02650014BEF8 /* CCPDocumentationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8ADD4FE1178F02650014BEF8 /* CCPDocumentationManager.m */; };
 		8AE98FD4178EFEA60053F2A4 /* CCPWorkspaceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8AE98FD3178EFEA60053F2A4 /* CCPWorkspaceManager.m */; };
@@ -34,6 +37,10 @@
 		8A275F8B178EFD2800FAB421 /* CCPShellHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCPShellHandler.h; sourceTree = "<group>"; };
 		8A275F8C178EFD2800FAB421 /* CCPShellHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCPShellHandler.m; sourceTree = "<group>"; };
 		8A4623A3178F055600DAB579 /* DefaultPodfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DefaultPodfile; sourceTree = "<group>"; };
+		8A5A8AC3185EC5EC00CD4D09 /* Gemfile */ = {isa = PBXFileReference; lastKnownFileType = text; name = Gemfile; path = ../vendor/Gemfile; sourceTree = "<group>"; };
+		8A5A8AC4185EC5EC00CD4D09 /* Gemfile.lock */ = {isa = PBXFileReference; lastKnownFileType = text; name = Gemfile.lock; path = ../vendor/Gemfile.lock; sourceTree = "<group>"; };
+		8A65A4CF185ECB4C00083228 /* bundler */ = {isa = PBXFileReference; lastKnownFileType = folder; name = bundler; path = vendor/bundle/bundler; sourceTree = SOURCE_ROOT; };
+		8A65A4D0185ECB4C00083228 /* ruby */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ruby; path = vendor/bundle/ruby; sourceTree = SOURCE_ROOT; };
 		8A80859A178B93C4006E56E3 /* CocoaPods.xcplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CocoaPods.xcplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A80859D178B93C4006E56E3 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		8A80859F178B93C4006E56E3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -42,6 +49,7 @@
 		8A8085A7178B93C4006E56E3 /* CocoaPods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CocoaPods.h; sourceTree = "<group>"; };
 		8A8085A8178B93C4006E56E3 /* CocoaPods.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CocoaPods.m; sourceTree = "<group>"; };
 		8A8085AA178B93C4006E56E3 /* CocoaPods-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CocoaPods-Prefix.pch"; sourceTree = "<group>"; };
+		8ACFF0BE185EC3F60083580B /* pod_wrapper.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = pod_wrapper.rb; sourceTree = "<group>"; };
 		8ADD4FE0178F02650014BEF8 /* CCPDocumentationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCPDocumentationManager.h; sourceTree = "<group>"; };
 		8ADD4FE1178F02650014BEF8 /* CCPDocumentationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCPDocumentationManager.m; sourceTree = "<group>"; };
 		8AE98FD2178EFEA60053F2A4 /* CCPWorkspaceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCPWorkspaceManager.h; sourceTree = "<group>"; };
@@ -89,6 +97,7 @@
 		8A275F8A178EFD2800FAB421 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				8ACFF0BE185EC3F60083580B /* pod_wrapper.rb */,
 				8A275F8B178EFD2800FAB421 /* CCPShellHandler.h */,
 				8A275F8C178EFD2800FAB421 /* CCPShellHandler.m */,
 				8AE98FD2178EFEA60053F2A4 /* CCPWorkspaceManager.h */,
@@ -103,6 +112,17 @@
 				F2D876AD1821928300ED2C96 /* CCPProject.m */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		8A5A81F3185EC4E100CD4D09 /* Vendor */ = {
+			isa = PBXGroup;
+			children = (
+				8A65A4CF185ECB4C00083228 /* bundler */,
+				8A65A4D0185ECB4C00083228 /* ruby */,
+				8A5A8AC3185EC5EC00CD4D09 /* Gemfile */,
+				8A5A8AC4185EC5EC00CD4D09 /* Gemfile.lock */,
+			);
+			name = Vendor;
 			sourceTree = "<group>";
 		};
 		8A808591178B93C4006E56E3 = {
@@ -140,6 +160,7 @@
 		8A8085A1178B93C4006E56E3 /* CocoaPods */ = {
 			isa = PBXGroup;
 			children = (
+				8A5A81F3185EC4E100CD4D09 /* Vendor */,
 				8A275F8A178EFD2800FAB421 /* Helpers */,
 				8A8085A7178B93C4006E56E3 /* CocoaPods.h */,
 				8A8085A8178B93C4006E56E3 /* CocoaPods.m */,
@@ -257,8 +278,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				8A8085A6178B93C4006E56E3 /* InfoPlist.strings in Resources */,
+				8A65A4D1185ECB4C00083228 /* bundler in Resources */,
 				F2031A5F18214F7C0052204B /* DefaultPodspec in Resources */,
 				8A4623A4178F055600DAB579 /* DefaultPodfile in Resources */,
+				8A65A4D2185ECB4C00083228 /* ruby in Resources */,
+				8ACFF0BF185EC3F60083580B /* pod_wrapper.rb in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

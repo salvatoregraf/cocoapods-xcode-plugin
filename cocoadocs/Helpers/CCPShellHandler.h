@@ -23,8 +23,12 @@
 
 #import <Foundation/Foundation.h>
 
+typedef void(^ShellCompletionBlock)(NSTask * task);
+
 @interface CCPShellHandler : NSObject
 
-+ (void)runShellCommand:(NSString *)command withArgs:(NSArray *)args directory:(NSString *)directory completion:(void (^)(NSTask *t))completion;
++ (void)runShellCommand:(NSString *)command withArgs:(NSArray *)args directory:(NSString *)directory completion:(ShellCompletionBlock)completion;
+
++ (void)runPodWithArguments:(NSArray *)args completion:(ShellCompletionBlock)completion;
 
 @end

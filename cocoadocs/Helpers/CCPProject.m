@@ -52,13 +52,13 @@
 		_projectName = name;
 		_podspecPath = [path stringByAppendingPathComponent:[name stringByAppendingString:@".podspec"]];
 		_directoryPath = path;
-        
+
 		NSString *infoPath = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@-Info.plist", _projectName, _projectName]];
 
 		_infoDictionary = [NSDictionary dictionaryWithContentsOfFile:infoPath];
 		_podfilePath = [path stringByAppendingPathComponent:@"Podfile"];
 	}
-    
+
 	return self;
 }
 
@@ -76,13 +76,13 @@
 {
 	NSMutableString *podspecFile    = _template.mutableCopy;
 	NSRange range; range.location = 0;
-    
+
 	range.length = podspecFile.length;
 	[podspecFile replaceOccurrencesOfString:@"<Project Name>"
 	                             withString:self.projectName
 	                                options:NSLiteralSearch
 	                                  range:range];
-    
+
 	NSString *version = self.infoDictionary[@"CFBundleShortVersionString"];
 	if (version) {
 		range.length = podspecFile.length;
@@ -91,33 +91,33 @@
 		                                options:NSLiteralSearch
 		                                  range:range];
 	}
-    
+
 	range.length = podspecFile.length;
 	[podspecFile replaceOccurrencesOfString:@"'<"
 	                             withString:@"'<#"
 	                                options:NSLiteralSearch
 	                                  range:range];
-    
+
 	range.length = podspecFile.length;
 	[podspecFile replaceOccurrencesOfString:@">'"
 	                             withString:@"#>'"
 	                                options:NSLiteralSearch
 	                                  range:range];
-    
+
 	// Reading dependencies
 	NSString *podfileContent    = [NSString stringWithContentsOfFile:self.podfilePath encoding:NSUTF8StringEncoding error:nil];
 	NSArray *fileLines          = [podfileContent componentsSeparatedByString:@"\n"];
-    
+
 	for (NSString *tmp in fileLines) {
 		NSString *line = [tmp stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-        
+
 		if ([line rangeOfString:@"pod "].location == 0) {
 			[podspecFile appendFormat:@"\n  s.dependencies =\t%@", line];
 		}
 	}
-    
+
 	[podspecFile appendString:@"\n\nend"];
-    
+
 	// Write Podspec File
 	[[NSFileManager defaultManager] createFileAtPath:self.podspecPath contents:nil attributes:nil];
 	[podspecFile writeToFile:self.podspecPath atomically:YES encoding:NSUTF8StringEncoding error:nil];

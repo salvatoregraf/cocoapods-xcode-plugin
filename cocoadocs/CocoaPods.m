@@ -27,11 +27,10 @@
 #import "CCPDocumentationManager.h"
 #import "CCPProject.h"
 
-static NSString *DMMCocoaPodsIntegrateWithDocsKey = @"DMMCocoaPodsIntegrateWithDocs";
-static NSString *DOCSET_ARCHIVE_FORMAT = @"http://cocoadocs.org/docsets/%@/docset.xar";
-static NSString *XAR_EXECUTABLE = @"/usr/bin/xar";
-static NSString *POD_EXECUTABLE = @"/usr/bin/pod";
-static NSString *GEM_EXECUTABLE = @"/usr/bin/gem";
+static NSString * const DMMCocoaPodsIntegrateWithDocsKey = @"DMMCocoaPodsIntegrateWithDocs";
+static NSString * const DOCSET_ARCHIVE_FORMAT = @"http://cocoadocs.org/docsets/%@/docset.xar";
+static NSString * const XAR_EXECUTABLE = @"/usr/bin/xar";
+static CocoaPods *sharedPlugin = nil;
 
 @interface CocoaPods ()
 
@@ -48,11 +47,15 @@ static NSString *GEM_EXECUTABLE = @"/usr/bin/gem";
 
 + (void)pluginDidLoad:(NSBundle *)plugin
 {
-	static id sharedPlugin = nil;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
 	    sharedPlugin = [[self alloc] initWithBundle:plugin];
 	});
+}
+
++ (instancetype)sharedPlugin
+{
+    return sharedPlugin;
 }
 
 - (id)initWithBundle:(NSBundle *)plugin
@@ -122,7 +125,8 @@ static NSString *GEM_EXECUTABLE = @"/usr/bin/gem";
         [[cocoaPodsMenu submenu] addItem:updateCPodsItem];
         [[cocoaPodsMenu submenu] addItem:[NSMenuItem separatorItem]];
 		[[cocoaPodsMenu submenu] addItem:self.installDocsItem];
-		[[topMenuItem submenu] insertItem:cocoaPodsMenu atIndex:[topMenuItem.submenu indexOfItemWithTitle:@"Build For"]];
+		[[topMenuItem submenu] insertItem:cocoaPodsMenu
+                                  atIndex:[topMenuItem.submenu indexOfItemWithTitle:@"Build For"]];
 	}
 }
 
@@ -168,29 +172,17 @@ static NSString *GEM_EXECUTABLE = @"/usr/bin/gem";
 
 - (void)integratePods
 {
-	[CCPShellHandler runShellCommand:POD_EXECUTABLE
-	                        withArgs:@[@"install"]
-	                       directory:[CCPWorkspaceManager currentWorkspaceDirectoryPath]
-	                      completion: ^(NSTask *t) {
-                              if ([self shouldInstallDocsForPods])
-                                  [self installOrUpdateDocSetsForPods];
-                          }];
+    [CCPShellHandler runPodWithArguments:@[@"install"]
+                              completion:^(NSTask *task) {
+                                  if ([self shouldInstallDocsForPods])
+                                      [self installOrUpdateDocSetsForPods];
+                              }];
 }
 
 - (void)checkForOutdatedPods
 {
-	[CCPShellHandler runShellCommand:POD_EXECUTABLE
-	                        withArgs:@[@"outdated"]
-	                       directory:[CCPWorkspaceManager currentWorkspaceDirectoryPath]
-	                      completion:nil];
-}
-
-- (void)installCocoaPods
-{
-	[CCPShellHandler runShellCommand:GEM_EXECUTABLE
-	                        withArgs:@[@"install", @"cocoapods"]
-	                       directory:[CCPWorkspaceManager currentWorkspaceDirectoryPath]
-	                      completion:nil];
+	[CCPShellHandler runPodWithArguments:@[@"outdated"]
+                              completion:nil];
 }
 
 - (void)installOrUpdateDocSetsForPods
