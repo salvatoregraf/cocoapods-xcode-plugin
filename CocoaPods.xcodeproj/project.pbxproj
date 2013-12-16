@@ -211,6 +211,7 @@
 				8A808596178B93C4006E56E3 /* Sources */,
 				8A808597178B93C4006E56E3 /* Frameworks */,
 				8A808598178B93C4006E56E3 /* Resources */,
+				8A43ECA8185ED05C007BE9B4 /* Install vendored gems */,
 			);
 			buildRules = (
 			);
@@ -311,6 +312,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Pods-CocoaPodsTests-resources.sh\"\n";
+		};
+		8A43ECA8185ED05C007BE9B4 /* Install vendored gems */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 8;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Install vendored gems";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "rake bundle";
 		};
 		BF5C51DE393C46A48CF9023F /* Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
