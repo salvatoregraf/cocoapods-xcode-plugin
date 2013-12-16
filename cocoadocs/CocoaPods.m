@@ -35,6 +35,7 @@ static CocoaPods *sharedPlugin = nil;
 @interface CocoaPods ()
 
 @property (nonatomic, strong) NSMenuItem *installPodsItem;
+@property (nonatomic, strong) NSMenuItem *updatePodsItem;
 @property (nonatomic, strong) NSMenuItem *outdatedPodsItem;
 @property (nonatomic, strong) NSMenuItem *installDocsItem;
 
@@ -71,7 +72,9 @@ static CocoaPods *sharedPlugin = nil;
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
-	if ([menuItem isEqual:self.installPodsItem] || [menuItem isEqual:self.outdatedPodsItem]) {
+	if ([menuItem isEqual:self.installPodsItem]
+        || [menuItem isEqual:self.outdatedPodsItem]
+        || [menuItem isEqual:self.updatePodsItem]) {
         return [[CCPProject projectForKeyWindow] hasPodfile];
 	}
     
@@ -101,28 +104,35 @@ static CocoaPods *sharedPlugin = nil;
 		NSMenuItem *createPodfileItem = [[NSMenuItem alloc] initWithTitle:@"Create/Edit Podfile"
 		                                                    action:@selector(createPodfile)
 		                                             keyEquivalent:@""];
-        
-		NSMenuItem *updateCPodsItem = [[NSMenuItem alloc] initWithTitle:@"Install/Update CocoaPods"
-		                                                         action:@selector(installCocoaPods)
-		                                                  keyEquivalent:@""];
+
+		self.updatePodsItem = [[NSMenuItem alloc] initWithTitle:@"Update installed pods"
+                                                         action:@selector(updatePods)
+                                                  keyEquivalent:@""];
         
 		NSMenuItem *createPodspecItem = [[NSMenuItem alloc] initWithTitle:@"Create/Edit Podspec"
 		                                                    action:@selector(createPodspecFile)
 		                                             keyEquivalent:@""];
+
+        NSMenuItem *searchPodsItem = [[NSMenuItem alloc] initWithTitle:@"Search Pods"
+                                                                action:@selector(searchPods)
+                                                         keyEquivalent:@""];
         
 		[self.installDocsItem setTarget:self];
 		[self.installPodsItem setTarget:self];
 		[self.outdatedPodsItem setTarget:self];
-		[updateCPodsItem setTarget:self];
+		[self.updatePodsItem setTarget:self];
 		[createPodfileItem setTarget:self];
 		[createPodspecItem setTarget:self];
+		[searchPodsItem setTarget:self];
         
 		[[cocoaPodsMenu submenu] addItem:self.installPodsItem];
 		[[cocoaPodsMenu submenu] addItem:self.outdatedPodsItem];
+        [[cocoaPodsMenu submenu] addItem:self.updatePodsItem];
+        [[cocoaPodsMenu submenu] addItem:[NSMenuItem separatorItem]];
+		[[cocoaPodsMenu submenu] addItem:searchPodsItem];
+        [[cocoaPodsMenu submenu] addItem:[NSMenuItem separatorItem]];
 		[[cocoaPodsMenu submenu] addItem:createPodfileItem];
         [[cocoaPodsMenu submenu] addItem:createPodspecItem];
-		[[cocoaPodsMenu submenu] addItem:[NSMenuItem separatorItem]];
-        [[cocoaPodsMenu submenu] addItem:updateCPodsItem];
         [[cocoaPodsMenu submenu] addItem:[NSMenuItem separatorItem]];
 		[[cocoaPodsMenu submenu] addItem:self.installDocsItem];
 		[[topMenuItem submenu] insertItem:cocoaPodsMenu
@@ -179,6 +189,15 @@ static CocoaPods *sharedPlugin = nil;
                               }];
 }
 
+- (void)updatePods
+{
+    [CCPShellHandler runPodWithArguments:@[@"update"]
+                              completion:^(NSTask *task) {
+                                  if ([self shouldInstallDocsForPods])
+                                      [self installOrUpdateDocSetsForPods];
+                              }];
+}
+
 - (void)checkForOutdatedPods
 {
 	[CCPShellHandler runPodWithArguments:@[@"outdated"]
@@ -197,6 +216,26 @@ static CocoaPods *sharedPlugin = nil;
 			}
 		}];
 	}
+}
+
+- (void)searchPods
+{
+    NSAlert *alert = [NSAlert alertWithMessageText:@"Find a pod"
+                                     defaultButton:@"Search"
+                                   alternateButton:@"Cancel"
+                                       otherButton:nil
+                         informativeTextWithFormat:@""];
+    NSTextField *input = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)];
+    [input.cell setPlaceholderString:@"pod name/description"];
+    [alert setAccessoryView:input];
+    if ([alert runModal] == NSAlertDefaultReturn) {
+        [input validateEditing];
+        NSString * searchText = [input stringValue];
+        if (searchText.length > 0) {
+            [CCPShellHandler runPodWithArguments:@[@"search", searchText]
+                                      completion:nil];
+        }
+    }
 }
 
 - (void)extractAndInstallDocsAtPath:(NSString *)path
