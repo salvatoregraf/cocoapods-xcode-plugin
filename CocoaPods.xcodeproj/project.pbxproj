@@ -38,7 +38,6 @@
 		8A275F8C178EFD2800FAB421 /* CCPShellHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCPShellHandler.m; sourceTree = "<group>"; };
 		8A4623A3178F055600DAB579 /* DefaultPodfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DefaultPodfile; sourceTree = "<group>"; };
 		8A5A8AC3185EC5EC00CD4D09 /* Gemfile */ = {isa = PBXFileReference; lastKnownFileType = text; name = Gemfile; path = ../vendor/Gemfile; sourceTree = "<group>"; };
-		8A5A8AC4185EC5EC00CD4D09 /* Gemfile.lock */ = {isa = PBXFileReference; lastKnownFileType = text; name = Gemfile.lock; path = ../vendor/Gemfile.lock; sourceTree = "<group>"; };
 		8A65A4CF185ECB4C00083228 /* bundler */ = {isa = PBXFileReference; lastKnownFileType = folder; name = bundler; path = vendor/bundle/bundler; sourceTree = SOURCE_ROOT; };
 		8A65A4D0185ECB4C00083228 /* ruby */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ruby; path = vendor/bundle/ruby; sourceTree = SOURCE_ROOT; };
 		8A80859A178B93C4006E56E3 /* CocoaPods.xcplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CocoaPods.xcplugin; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -120,7 +119,6 @@
 				8A65A4CF185ECB4C00083228 /* bundler */,
 				8A65A4D0185ECB4C00083228 /* ruby */,
 				8A5A8AC3185EC5EC00CD4D09 /* Gemfile */,
-				8A5A8AC4185EC5EC00CD4D09 /* Gemfile.lock */,
 			);
 			name = Vendor;
 			sourceTree = "<group>";
