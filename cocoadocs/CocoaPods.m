@@ -232,7 +232,7 @@ static CocoaPods *sharedPlugin = nil;
         [input validateEditing];
         NSString * searchText = [input stringValue];
         if (searchText.length > 0) {
-            [CCPShellHandler runPodWithArguments:@[@"search", searchText]
+            [CCPShellHandler runPodWithArguments:@[@"search", @"--no-color", searchText]
                                       completion:nil];
         }
     }
