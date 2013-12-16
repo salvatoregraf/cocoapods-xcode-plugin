@@ -80,6 +80,7 @@ static NSMutableDictionary *sharedInstances;
 
 - (void)appendText:(NSString *)text color:(NSColor *)color
 {
+    text = [self sanitizedText:text];
 	if (text.length == 0) return;
     
 	if (!color)
@@ -99,6 +100,18 @@ static NSMutableDictionary *sharedInstances;
 	} else {
 		[self.console.textStorage appendAttributedString:as];
 	}
+}
+
+- (NSString *)sanitizedText:(NSString *)text
+{
+    NSError *error = nil;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\e\\[\\d+m"
+                                                                           options:NSRegularExpressionCaseInsensitive
+                                                                             error:&error];
+    return [regex stringByReplacingMatchesInString:text
+                                           options:0
+                                             range:NSMakeRange(0, [text length])
+                                      withTemplate:@""];
 }
 
 #pragma mark - Class Methods
