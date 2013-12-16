@@ -21,9 +21,10 @@
 //  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 //  IN THE SOFTWARE.
 
+#import "CCPShellHandler.h"
 
 @interface CCPRunOperation : NSOperation
 
-- (id)initWithTask:(NSTask *)task;
+- (id)initWithTask:(NSTask *)task completion:(ShellCompletionBlock)completion;
 
 @end

@@ -37,7 +37,8 @@ static NSString * const RUBY_EXECUTABLE            = @"/usr/bin/ruby";
 
 @implementation CCPShellHandler
 
-+ (void)runShellCommand:(NSString *)command withArgs:(NSArray *)args directory:(NSString *)directory completion:(ShellCompletionBlock)completion
++ (void)runShellCommand:(NSString *)command withArgs:(NSArray *)args
+              directory:(NSString *)directory completion:(ShellCompletionBlock)completion
 {
 	if (operationQueue == nil) {
 		operationQueue = [NSOperationQueue new];
@@ -53,7 +54,8 @@ static NSString * const RUBY_EXECUTABLE            = @"/usr/bin/ruby";
                           @"PATH" : @"/usr/bin"
                           };
 
-	CCPRunOperation *operation = [[CCPRunOperation alloc] initWithTask:task];
+	CCPRunOperation *operation = [[CCPRunOperation alloc] initWithTask:task
+                                                            completion:completion];
 	[operationQueue addOperation:operation];
 }
 
