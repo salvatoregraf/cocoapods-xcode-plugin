@@ -27,7 +27,7 @@ typedef void(^ShellCompletionBlock)(NSTask * task);
 
 @interface CCPShellHandler : NSObject
 
-+ (void)runShellCommand:(NSString *)command withArgs:(NSArray *)args directory:(NSString *)directory completion:(ShellCompletionBlock)completion;
++ (void)runShellCommand:(NSString *)command withArgs:(NSArray *)args title:(NSString *)title directory:(NSString *)directory completion:(ShellCompletionBlock)completion;
 
 + (void)runPodWithArguments:(NSArray *)args completion:(ShellCompletionBlock)completion;
 

@@ -55,6 +55,7 @@ static NSString *const XAR_EXECUTABLE = @"/usr/bin/xar";
 	NSArray *arguments = @[@"-xf", path, @"-C", [CCPDocumentationManager docsetInstallPath]];
 	[CCPShellHandler runShellCommand:XAR_EXECUTABLE
 	                        withArgs:arguments
+                               title:@"Installing Documentation..."
 	                       directory:NSTemporaryDirectory()
 	                      completion:nil];
 }

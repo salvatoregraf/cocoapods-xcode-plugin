@@ -37,6 +37,7 @@ static NSString * const RUBY_EXECUTABLE            = @"/usr/bin/ruby";
 @implementation CCPShellHandler
 
 + (void)runShellCommand:(NSString *)command withArgs:(NSArray *)args
+                  title:(NSString *)title
               directory:(NSString *)directory completion:(ShellCompletionBlock)completion
 {
 	if (!operationQueue)
@@ -49,13 +50,14 @@ static NSString * const RUBY_EXECUTABLE            = @"/usr/bin/ruby";
 	task.arguments   = args;
   task.environment = [self podTaskEnvironment];
 
-	[operationQueue addOperation:[[CCPRunOperation alloc] initWithTask:task completion:completion]];
+	[operationQueue addOperation:[[CCPRunOperation alloc] initWithTask:task title:title completion:completion]];
 }
 
 + (void)runPodWithArguments:(NSArray *)args completion:(ShellCompletionBlock)completion
 {
     [self runShellCommand:RUBY_EXECUTABLE
                  withArgs:[@[[self podWrapperPath]] arrayByAddingObjectsFromArray:args]
+                    title:[NSString stringWithFormat:@"Running `pod %@`", [args componentsJoinedByString:@" "]]
                 directory:[CCPWorkspaceManager currentWorkspaceDirectoryPath]
                completion:completion];
 }

@@ -25,6 +25,6 @@
 
 @interface CCPRunOperation : NSOperation
 
-- (id)initWithTask:(NSTask *)task completion:(ShellCompletionBlock)completion;
+- (id)initWithTask:(NSTask *)task title:(NSString *)title completion:(ShellCompletionBlock)completion;
 
 @end

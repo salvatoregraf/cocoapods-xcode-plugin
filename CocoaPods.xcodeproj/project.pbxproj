@@ -67,7 +67,7 @@
 		DAD58A90178E096700939F87 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		F2031A5E18214F7C0052204B /* DefaultPodspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DefaultPodspec; sourceTree = "<group>"; };
 		F258591D182041BB001C7319 /* CCPRunOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCPRunOperation.h; sourceTree = "<group>"; };
-		F258591E182041BB001C7319 /* CCPRunOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCPRunOperation.m; sourceTree = "<group>"; };
+		F258591E182041BB001C7319 /* CCPRunOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.objc; path = CCPRunOperation.m; sourceTree = "<group>"; tabWidth = 4; };
 		F258591F182041BB001C7319 /* CCPXCodeConsole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCPXCodeConsole.h; path = Helpers/CCPXCodeConsole.h; sourceTree = "<group>"; };
 		F2585920182041BB001C7319 /* CCPXCodeConsole.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CCPXCodeConsole.m; path = Helpers/CCPXCodeConsole.m; sourceTree = "<group>"; };
 		F2D876AC1821928300ED2C96 /* CCPProject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCPProject.h; path = Helpers/CCPProject.h; sourceTree = "<group>"; };

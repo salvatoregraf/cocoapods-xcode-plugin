@@ -37,6 +37,7 @@
 @property (retain) id taskStandardErrorDataAvailableObserver;
 @property (retain) id taskTerminationObserver;
 @property (strong) ShellCompletionBlock completion;
+@property (nonatomic, strong) NSString *title;
 
 @end
 
@@ -46,12 +47,13 @@
 #pragma mark -
 #pragma mark NSOperation
 
-- (id)initWithTask:(NSTask *)task completion:(ShellCompletionBlock)completion
+- (id)initWithTask:(NSTask *)task title:(NSString *)title completion:(ShellCompletionBlock)completion
 {
 	self = [super init];
 	if (self) {
 		_xcodeConsole = [CCPXCodeConsole consoleForKeyWindow];
 		_task = task;
+        _title = title;
         _completion = completion;
 	}
 	return self;
@@ -185,8 +187,9 @@
 
 		[standardOutputFileHandle waitForDataInBackgroundAndNotify];
 		[standardErrorFileHandle waitForDataInBackgroundAndNotify];
-        
-		[self.xcodeConsole appendText:[NSString stringWithFormat:@"%@ %@\n\n", self.task.launchPath, [self.task.arguments componentsJoinedByString:@" "]]];
+
+        if (self.title)
+            [self.xcodeConsole appendText:[NSString stringWithFormat:@"%@\n\n", self.title]];
 		[self.task launch];
 	}
 	@catch (NSException *exception)
@@ -232,6 +235,7 @@
 	if (self.taskStandardOutDataAvailableObserver == nil
      && self.taskStandardErrorDataAvailableObserver == nil
      && self.task == nil) {
+        [self.xcodeConsole appendText:@"Done.\n\n"];
 		self.isExecuting = NO;
 		self.isFinished = YES;
 	}
