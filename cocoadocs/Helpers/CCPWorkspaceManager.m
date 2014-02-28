@@ -1,7 +1,7 @@
 //
 //  CCPWorkspaceManager.m
 //
-//  Copyright (c) 2013 Delisa Mason. http://delisa.me
+//  Copyright (c) 2014 Delisa Mason. http://delisa.me
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to
@@ -22,10 +22,10 @@
 //  IN THE SOFTWARE.
 
 #import "CCPWorkspaceManager.h"
-
 #import "CCPProject.h"
 
-static NSString *PODFILE = @"Podfile";
+static NSString *const PODFILE = @"Podfile";
+static NSString *const SCHEME_NAMES_KEY_PATH = @"_runContextManager.runContexts.name";
 
 @implementation CCPWorkspaceManager
 
@@ -33,12 +33,14 @@ static NSString *PODFILE = @"Podfile";
 {
 	NSMutableArray *names = [NSMutableArray new];
 	id workspace = [self workspaceForKeyWindow];
-    
-	id contextManager = [workspace valueForKey:@"_runContextManager"];
-	for (id scheme in[contextManager valueForKey:@"runContexts"]) {
-		NSString *schemeName = [scheme valueForKey:@"name"];
-		if ([schemeName hasPrefix:@"Pods-"]) {
-			[names addObject:[schemeName stringByReplacingOccurrencesOfString:@"Pods-" withString:@""]];
+
+	for (NSString *schemeName in [workspace valueForKeyPath:SCHEME_NAMES_KEY_PATH]) {
+		if ([schemeName hasPrefix:@"Pods-"] && ![schemeName hasSuffix:@"Tests"]) {
+            NSRange testsRange = [schemeName rangeOfString:@"Tests-"];
+            if (testsRange.location != NSNotFound)
+                [names addObject:[schemeName substringFromIndex:testsRange.location + testsRange.length]];
+            else
+                [names addObject:[schemeName stringByReplacingOccurrencesOfString:@"Pods-" withString:@""]];
 		}
 	}
 	return names;
