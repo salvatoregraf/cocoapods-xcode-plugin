@@ -1,7 +1,7 @@
 //
 //  CCPShellHandler.m
 //
-//  Copyright (c) 2013 Delisa Mason. http://delisa.me
+//  Copyright (c) 2014 Delisa Mason. http://delisa.me
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to
@@ -21,12 +21,11 @@
 //  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 //  IN THE SOFTWARE.
 
+#import <AppKit/AppKit.h>
+
 #import "CCPShellHandler.h"
 #import "CCPWorkspaceManager.h"
 #import "CocoaPods.h"
-
-#import <AppKit/AppKit.h>
-
 #import "CCPRunOperation.h"
 
 static NSOperationQueue *operationQueue;
@@ -40,23 +39,17 @@ static NSString * const RUBY_EXECUTABLE            = @"/usr/bin/ruby";
 + (void)runShellCommand:(NSString *)command withArgs:(NSArray *)args
               directory:(NSString *)directory completion:(ShellCompletionBlock)completion
 {
-	if (operationQueue == nil) {
+	if (!operationQueue)
 		operationQueue = [NSOperationQueue new];
-	}
     
 	NSTask *task = [NSTask new];
     
 	task.currentDirectoryPath = directory;
-	task.launchPath = command;
-	task.arguments  = args;
-    task.environment = @{ DMMCocoaPodsEnvironmentKey : [[self podWrapperPath] stringByDeletingLastPathComponent],
-                          @"HOME" : NSHomeDirectory(),
-                          @"PATH" : @"/usr/bin"
-                          };
+	task.launchPath  = command;
+	task.arguments   = args;
+  task.environment = [self podTaskEnvironment];
 
-	CCPRunOperation *operation = [[CCPRunOperation alloc] initWithTask:task
-                                                            completion:completion];
-	[operationQueue addOperation:operation];
+	[operationQueue addOperation:[[CCPRunOperation alloc] initWithTask:task completion:completion]];
 }
 
 + (void)runPodWithArguments:(NSArray *)args completion:(ShellCompletionBlock)completion
@@ -69,7 +62,7 @@ static NSString * const RUBY_EXECUTABLE            = @"/usr/bin/ruby";
 
 + (NSString *)podWrapperPath
 {
-    static NSString * wrapperPath = nil;
+    static NSString *wrapperPath = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSBundle * bundle = [[CocoaPods sharedPlugin] bundle];
@@ -78,6 +71,20 @@ static NSString * const RUBY_EXECUTABLE            = @"/usr/bin/ruby";
     });
 
     return wrapperPath;
+}
+
++ (NSDictionary *)podTaskEnvironment
+{
+  static NSDictionary *environment;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    environment = @{ DMMCocoaPodsEnvironmentKey : [[self podWrapperPath] stringByDeletingLastPathComponent],
+                     @"HOME" : NSHomeDirectory(),
+                     @"PATH" : @"/usr/bin"
+                    };
+  });
+
+  return environment;
 }
 
 @end

@@ -24,7 +24,6 @@
 #import <objc/runtime.h>
 
 #import "CCPProject.h"
-
 #import "CCPWorkspaceManager.h"
 
 @implementation CCPProject
@@ -45,8 +44,7 @@
 	return nil;
 }
 
-- (id)initWithName:(NSString *)name
-              path:(NSString *)path
+- (id)initWithName:(NSString *)name path:(NSString *)path
 {
 	if (self = [self init]) {
 		_projectName = name;

@@ -1,7 +1,7 @@
 //
 //  CocoaPods.m
 //
-//  Copyright (c) 2013 Delisa Mason. http://delisa.me
+//  Copyright (c) 2014 Delisa Mason. http://delisa.me
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to
@@ -23,13 +23,11 @@
 
 #import "CocoaPods.h"
 #import "CCPShellHandler.h"
+#import "CCPPreferences.h"
 #import "CCPWorkspaceManager.h"
 #import "CCPDocumentationManager.h"
 #import "CCPProject.h"
 
-static NSString * const DMMCocoaPodsIntegrateWithDocsKey = @"DMMCocoaPodsIntegrateWithDocs";
-static NSString * const DOCSET_ARCHIVE_FORMAT = @"http://cocoadocs.org/docsets/%@/docset.xar";
-static NSString * const XAR_EXECUTABLE = @"/usr/bin/xar";
 static CocoaPods *sharedPlugin = nil;
 
 @interface CocoaPods ()
@@ -91,7 +89,7 @@ static CocoaPods *sharedPlugin = nil;
 		self.installDocsItem = [[NSMenuItem alloc] initWithTitle:@"Install Docs during Integration"
 		                                                  action:@selector(toggleInstallDocsForPods)
 		                                           keyEquivalent:@""];
-		self.installDocsItem.state = [self shouldInstallDocsForPods] ? NSOnState : NSOffState;
+		self.installDocsItem.state = [CCPPreferences shouldInstallDocsForPods] ? NSOnState : NSOffState;
         
 		self.installPodsItem = [[NSMenuItem alloc] initWithTitle:@"Integrate Pods"
 		                                                  action:@selector(integratePods)
@@ -102,16 +100,16 @@ static CocoaPods *sharedPlugin = nil;
 		                                            keyEquivalent:@""];
         
 		NSMenuItem *createPodfileItem = [[NSMenuItem alloc] initWithTitle:@"Create/Edit Podfile"
-		                                                    action:@selector(createPodfile)
-		                                             keyEquivalent:@""];
+                                                                   action:@selector(createPodfile)
+                                                            keyEquivalent:@""];
 
 		self.updatePodsItem = [[NSMenuItem alloc] initWithTitle:@"Update installed pods"
                                                          action:@selector(updatePods)
                                                   keyEquivalent:@""];
         
 		NSMenuItem *createPodspecItem = [[NSMenuItem alloc] initWithTitle:@"Create/Edit Podspec"
-		                                                    action:@selector(createPodspecFile)
-		                                             keyEquivalent:@""];
+                                                                   action:@selector(createPodspecFile)
+                                                            keyEquivalent:@""];
 
         NSMenuItem *searchPodsItem = [[NSMenuItem alloc] initWithTitle:@"Search Pods"
                                                                 action:@selector(searchPods)
@@ -144,7 +142,8 @@ static CocoaPods *sharedPlugin = nil;
 
 - (void)toggleInstallDocsForPods
 {
-	[self setShouldInstallDocsForPods:![self shouldInstallDocsForPods]];
+	[CCPPreferences toggleShouldInstallDocsForPods];
+    self.installDocsItem.state = [CCPPreferences shouldInstallDocsForPods] ? NSOnState : NSOffState;
 }
 
 - (void)createPodfile
@@ -152,7 +151,7 @@ static CocoaPods *sharedPlugin = nil;
     CCPProject *project = [CCPProject projectForKeyWindow];
     NSString *podFilePath = project.podfilePath;
     
-	if (! [project hasPodfile]) {
+	if (![project hasPodfile]) {
 		NSError *error = nil;
 		[[NSFileManager defaultManager] copyItemAtPath:[self.bundle pathForResource:@"DefaultPodfile" ofType:@""] toPath:podFilePath error:&error];
 		if (error) {
@@ -169,7 +168,7 @@ static CocoaPods *sharedPlugin = nil;
     CCPProject *project = [CCPProject projectForKeyWindow];
     NSString *podspecPath = project.podspecPath;
     
-	if (! [project hasPodspecFile]) {
+	if (![project hasPodspecFile]) {
         NSString *podspecTemplate = [NSString stringWithContentsOfFile:[self.bundle pathForResource:@"DefaultPodspec" ofType:@""]
                                                               encoding:NSUTF8StringEncoding error:nil];
         
@@ -184,8 +183,8 @@ static CocoaPods *sharedPlugin = nil;
 {
     [CCPShellHandler runPodWithArguments:@[@"install"]
                               completion:^(NSTask *task) {
-                                  if ([self shouldInstallDocsForPods])
-                                      [self installOrUpdateDocSetsForPods];
+                                  if ([CCPPreferences shouldInstallDocsForPods])
+                                      [CCPDocumentationManager installOrUpdateDocumentationForPods];
                               }];
 }
 
@@ -193,29 +192,14 @@ static CocoaPods *sharedPlugin = nil;
 {
     [CCPShellHandler runPodWithArguments:@[@"update"]
                               completion:^(NSTask *task) {
-                                  if ([self shouldInstallDocsForPods])
-                                      [self installOrUpdateDocSetsForPods];
+                                  if ([CCPPreferences shouldInstallDocsForPods])
+                                      [CCPDocumentationManager installOrUpdateDocumentationForPods];
                               }];
 }
 
 - (void)checkForOutdatedPods
 {
-	[CCPShellHandler runPodWithArguments:@[@"outdated"]
-                              completion:nil];
-}
-
-- (void)installOrUpdateDocSetsForPods
-{
-	for (NSString *podName in[CCPWorkspaceManager installedPodNamesInCurrentWorkspace]) {
-		NSURL *docsetURL = [NSURL URLWithString:[NSString stringWithFormat:DOCSET_ARCHIVE_FORMAT, podName]];
-		[NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:docsetURL] queue:[NSOperationQueue mainQueue] completionHandler: ^(NSURLResponse *response, NSData *xarData, NSError *connectionError) {
-		    if (xarData) {
-		        NSString *tmpFilePath = [NSString pathWithComponents:@[NSTemporaryDirectory(), [NSString stringWithFormat:@"%@.xar", podName]]];
-		        [xarData writeToFile:tmpFilePath atomically:YES];
-		        [self extractAndInstallDocsAtPath:tmpFilePath];
-			}
-		}];
-	}
+	[CCPShellHandler runPodWithArguments:@[@"outdated"] completion:nil];
 }
 
 - (void)searchPods
@@ -236,28 +220,6 @@ static CocoaPods *sharedPlugin = nil;
                                       completion:nil];
         }
     }
-}
-
-- (void)extractAndInstallDocsAtPath:(NSString *)path
-{
-	NSArray *arguments = @[@"-xf", path, @"-C", [CCPDocumentationManager docsetInstallPath]];
-	[CCPShellHandler runShellCommand:XAR_EXECUTABLE
-	                        withArgs:arguments
-	                       directory:NSTemporaryDirectory()
-	                      completion:nil];
-}
-
-#pragma mark - Preferences
-
-- (BOOL)shouldInstallDocsForPods
-{
-	return [[NSUserDefaults standardUserDefaults] boolForKey:DMMCocoaPodsIntegrateWithDocsKey];
-}
-
-- (void)setShouldInstallDocsForPods:(BOOL)enabled
-{
-	[[NSUserDefaults standardUserDefaults] setBool:enabled forKey:DMMCocoaPodsIntegrateWithDocsKey];
-	self.installDocsItem.state = enabled ? NSOnState : NSOffState;
 }
 
 @end

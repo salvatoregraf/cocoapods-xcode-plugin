@@ -22,15 +22,41 @@
 //  IN THE SOFTWARE.
 
 #import "CCPDocumentationManager.h"
+#import "CCPWorkspaceManager.h"
+#import "CCPShellHandler.h"
 
-static NSString *RELATIVE_DOCSET_PATH  = @"/Library/Developer/Shared/Documentation/DocSets/";
+static NSString *const RELATIVE_DOCSET_PATH  = @"/Library/Developer/Shared/Documentation/DocSets/";
+static NSString *const DOCSET_ARCHIVE_FORMAT = @"http://cocoadocs.org/docsets/%@/docset.xar";
+static NSString *const XAR_EXECUTABLE = @"/usr/bin/xar";
 
 @implementation CCPDocumentationManager
 
-
 + (NSString *)docsetInstallPath
 {
-	return [NSString pathWithComponents:@[NSHomeDirectory(), RELATIVE_DOCSET_PATH]];
+    return [NSString pathWithComponents:@[NSHomeDirectory(), RELATIVE_DOCSET_PATH]];
+}
+
++ (void)installOrUpdateDocumentationForPods
+{
+	for (NSString *podName in [CCPWorkspaceManager installedPodNamesInCurrentWorkspace]) {
+		NSURL *docsetURL = [NSURL URLWithString:[NSString stringWithFormat:DOCSET_ARCHIVE_FORMAT, podName]];
+		[NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:docsetURL] queue:[NSOperationQueue mainQueue] completionHandler: ^(NSURLResponse *response, NSData *xarData, NSError *connectionError) {
+		    if (xarData) {
+		        NSString *tmpFilePath = [NSString pathWithComponents:@[NSTemporaryDirectory(), [NSString stringWithFormat:@"%@.xar", podName]]];
+		        [xarData writeToFile:tmpFilePath atomically:YES];
+		        [self extractAndInstallDocsAtPath:tmpFilePath];
+			}
+		}];
+	}
+}
+
++ (void)extractAndInstallDocsAtPath:(NSString *)path
+{
+	NSArray *arguments = @[@"-xf", path, @"-C", [CCPDocumentationManager docsetInstallPath]];
+	[CCPShellHandler runShellCommand:XAR_EXECUTABLE
+	                        withArgs:arguments
+	                       directory:NSTemporaryDirectory()
+	                      completion:nil];
 }
 
 @end

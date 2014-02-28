@@ -26,5 +26,6 @@
 @interface CCPDocumentationManager : NSObject
 
 + (NSString *)docsetInstallPath;
++ (void)installOrUpdateDocumentationForPods;
 
 @end

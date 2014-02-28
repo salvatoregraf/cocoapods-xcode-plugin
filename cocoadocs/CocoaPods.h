@@ -26,7 +26,6 @@
 @interface CocoaPods : NSObject
 
 + (instancetype)sharedPlugin;
-- (void)installOrUpdateDocSetsForPods;
 - (NSBundle *)bundle;
 
 @end
