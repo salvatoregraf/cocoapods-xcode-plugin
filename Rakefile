@@ -1,7 +1,9 @@
 desc 'Install bundled gems'
 task :bundle do
+  puts "Remember to only bundle using system ruby!"
   sh 'cd vendor && bundle install --path=bundle --standalone'
   FileList['vendor/bundle/ruby/*/{bin,build_info,cache,doc,specifications}'].each { |dir| rm_rf dir }
+  sh 'mv vendor/bundle/ruby/1.9.1 vendor/bundle/ruby/2.0.0'
 end
 
 desc 'Remove build artifacts'
