@@ -71,7 +71,7 @@
 		F258591F182041BB001C7319 /* CCPXCodeConsole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCPXCodeConsole.h; path = Helpers/CCPXCodeConsole.h; sourceTree = "<group>"; };
 		F2585920182041BB001C7319 /* CCPXCodeConsole.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CCPXCodeConsole.m; path = Helpers/CCPXCodeConsole.m; sourceTree = "<group>"; };
 		F2D876AC1821928300ED2C96 /* CCPProject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCPProject.h; path = Helpers/CCPProject.h; sourceTree = "<group>"; };
-		F2D876AD1821928300ED2C96 /* CCPProject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CCPProject.m; path = Helpers/CCPProject.m; sourceTree = "<group>"; };
+		F2D876AD1821928300ED2C96 /* CCPProject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CCPProject.m; path = Helpers/CCPProject.m; sourceTree = "<group>"; tabWidth = 4; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

@@ -36,6 +36,8 @@ static CocoaPods *sharedPlugin = nil;
 @property (nonatomic, strong) NSMenuItem *updatePodsItem;
 @property (nonatomic, strong) NSMenuItem *outdatedPodsItem;
 @property (nonatomic, strong) NSMenuItem *installDocsItem;
+@property (nonatomic, strong) NSMenuItem *createPodfileItem;
+@property (nonatomic, strong) NSMenuItem *createPodspecItem;
 
 @property (nonatomic, strong) NSBundle *bundle;
 
@@ -74,7 +76,17 @@ static CocoaPods *sharedPlugin = nil;
         || [menuItem isEqual:self.outdatedPodsItem]
         || [menuItem isEqual:self.updatePodsItem]) {
         return [[CCPProject projectForKeyWindow] hasPodfile];
-	}
+	} else if ([menuItem isEqual:self.createPodfileItem]) {
+        if ([[CCPProject projectForKeyWindow] hasPodfile])
+            menuItem.title = @"Edit Podfile";
+        else
+            menuItem.title = @"Create Podfile";
+    } else if ([menuItem isEqual:self.createPodspecItem]) {
+        if ([[CCPProject projectForKeyWindow] hasPodspec])
+            menuItem.title = @"Edit Podspec";
+        else
+            menuItem.title = @"Create Podspec";
+    }
     
 	return YES;
 }
@@ -99,17 +111,17 @@ static CocoaPods *sharedPlugin = nil;
 		                                                   action:@selector(checkForOutdatedPods)
 		                                            keyEquivalent:@""];
         
-		NSMenuItem *createPodfileItem = [[NSMenuItem alloc] initWithTitle:@"Create/Edit Podfile"
-                                                                   action:@selector(createPodfile)
-                                                            keyEquivalent:@""];
+		self.createPodfileItem = [[NSMenuItem alloc] initWithTitle:@"Create/Edit Podfile"
+                                                            action:@selector(createPodfile)
+                                                     keyEquivalent:@""];
 
 		self.updatePodsItem = [[NSMenuItem alloc] initWithTitle:@"Update installed pods"
                                                          action:@selector(updatePods)
                                                   keyEquivalent:@""];
-        
-		NSMenuItem *createPodspecItem = [[NSMenuItem alloc] initWithTitle:@"Create/Edit Podspec"
-                                                                   action:@selector(createPodspec)
-                                                            keyEquivalent:@""];
+
+		self.createPodspecItem = [[NSMenuItem alloc] initWithTitle:@"Create/Edit Podspec"
+                                                            action:@selector(createPodspec)
+                                                     keyEquivalent:@""];
 
         NSMenuItem *searchPodsItem = [[NSMenuItem alloc] initWithTitle:@"Search Pods"
                                                                 action:@selector(searchPods)
@@ -119,8 +131,8 @@ static CocoaPods *sharedPlugin = nil;
 		[self.installPodsItem setTarget:self];
 		[self.outdatedPodsItem setTarget:self];
 		[self.updatePodsItem setTarget:self];
-		[createPodfileItem setTarget:self];
-		[createPodspecItem setTarget:self];
+		[self.createPodfileItem setTarget:self];
+		[self.createPodspecItem setTarget:self];
 		[searchPodsItem setTarget:self];
         
 		[[cocoaPodsMenu submenu] addItem:self.installPodsItem];
@@ -129,8 +141,8 @@ static CocoaPods *sharedPlugin = nil;
         [[cocoaPodsMenu submenu] addItem:[NSMenuItem separatorItem]];
 		[[cocoaPodsMenu submenu] addItem:searchPodsItem];
         [[cocoaPodsMenu submenu] addItem:[NSMenuItem separatorItem]];
-		[[cocoaPodsMenu submenu] addItem:createPodfileItem];
-        [[cocoaPodsMenu submenu] addItem:createPodspecItem];
+		[[cocoaPodsMenu submenu] addItem:self.createPodfileItem];
+        [[cocoaPodsMenu submenu] addItem:self.createPodspecItem];
         [[cocoaPodsMenu submenu] addItem:[NSMenuItem separatorItem]];
 		[[cocoaPodsMenu submenu] addItem:self.installDocsItem];
 		[[topMenuItem submenu] insertItem:cocoaPodsMenu

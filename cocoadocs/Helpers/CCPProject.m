@@ -47,9 +47,10 @@
 
 - (id)initWithName:(NSString *)name path:(NSString *)path
 {
-	if (self = [self init]) {
+	if (self = [super init]) {
 		_projectName = name;
-		_podspecPath = [path stringByAppendingPathComponent:[name stringByAppendingString:@".podspec"]];
+        NSString * podspecRelativePath = [NSString stringWithFormat:@"../%@", [name stringByAppendingString:@".podspec"]];
+		_podspecPath   = [path stringByAppendingPathComponent:podspecRelativePath];
 		_directoryPath = path;
 
 		NSString *infoPath = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@-Info.plist", _projectName, _projectName]];
@@ -90,14 +91,14 @@
 
 #pragma mark - Podspec
 
-- (BOOL)hasPodspecFile
+- (BOOL)hasPodspec
 {
 	return [[NSFileManager defaultManager] fileExistsAtPath:self.podspecPath];
 }
 
 - (void)createOrEditPodspec
 {
-	if (![self hasPodspecFile]) {
+	if (![self hasPodspec]) {
     NSString *podspecTemplate = [NSString stringWithContentsOfFile:[[CocoaPods sharedPlugin].bundle pathForResource:@"DefaultPodspec" ofType:@""]
                                                           encoding:NSUTF8StringEncoding error:nil];
 
@@ -108,9 +109,9 @@
                                                    openFile:self.podspecPath];
 }
 
-- (void)createPodspecFromTemplate:(NSString *)_template
+- (void)createPodspecFromTemplate:(NSString *)template
 {
-	NSMutableString *podspecFile    = _template.mutableCopy;
+	NSMutableString *podspecFile    = template.mutableCopy;
 	NSRange range; range.location = 0;
 
 	range.length = podspecFile.length;

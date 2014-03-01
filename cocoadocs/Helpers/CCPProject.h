@@ -37,7 +37,7 @@
 - (id)initWithName:(NSString *)name path:(NSString *)path;
 
 - (BOOL)hasPodfile;
-- (BOOL)hasPodspecFile;
+- (BOOL)hasPodspec;
 
 - (BOOL)containsFileWithName:(NSString *)fileName;
 
