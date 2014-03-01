@@ -1,7 +1,7 @@
 //
 //  CCPWorkspace.m
 //
-//  Copyright (c) 2013 Delisa Mason. http://delisa.me
+//  Copyright (c) 2014 Delisa Mason. http://delisa.me
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to
@@ -24,6 +24,7 @@
 #import <objc/runtime.h>
 
 #import "CCPProject.h"
+#import "CocoaPods.h"
 #import "CCPWorkspaceManager.h"
 
 @implementation CCPProject
@@ -60,14 +61,51 @@
 	return self;
 }
 
+- (BOOL)containsFileWithName:(NSString *)fileName
+{
+	NSString *filePath = [self.directoryPath stringByAppendingPathComponent:fileName];
+	return [[NSFileManager defaultManager] fileExistsAtPath:filePath];
+}
+
+#pragma mark - Podfile
+
+- (BOOL)hasPodfile
+{
+	return [[NSFileManager defaultManager] fileExistsAtPath:self.podfilePath];
+}
+
+- (void)createOrEditPodfile
+{
+	if (![self hasPodfile]) {
+		NSError *error = nil;
+		[[NSFileManager defaultManager] copyItemAtPath:[[CocoaPods sharedPlugin].bundle pathForResource:@"DefaultPodfile" ofType:@""] toPath:self.podfilePath error:&error];
+		if (error) {
+			[[NSAlert alertWithError:error] runModal];
+		}
+	}
+
+  [[[NSApplication sharedApplication] delegate] application:[NSApplication sharedApplication]
+                                                   openFile:self.podfilePath];
+}
+
+#pragma mark - Podspec
+
 - (BOOL)hasPodspecFile
 {
 	return [[NSFileManager defaultManager] fileExistsAtPath:self.podspecPath];
 }
 
-- (BOOL)hasPodfile
+- (void)createOrEditPodspec
 {
-	return [[NSFileManager defaultManager] fileExistsAtPath:self.podfilePath];
+	if (![self hasPodspecFile]) {
+    NSString *podspecTemplate = [NSString stringWithContentsOfFile:[[CocoaPods sharedPlugin].bundle pathForResource:@"DefaultPodspec" ofType:@""]
+                                                          encoding:NSUTF8StringEncoding error:nil];
+
+    [self createPodspecFromTemplate:podspecTemplate];
+  }
+
+  [[[NSApplication sharedApplication] delegate] application:[NSApplication sharedApplication]
+                                                   openFile:self.podspecPath];
 }
 
 - (void)createPodspecFromTemplate:(NSString *)_template
@@ -119,12 +157,6 @@
 	// Write Podspec File
 	[[NSFileManager defaultManager] createFileAtPath:self.podspecPath contents:nil attributes:nil];
 	[podspecFile writeToFile:self.podspecPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
-}
-
-- (BOOL)containsFileWithName:(NSString *)fileName
-{
-	NSString *filePath = [self.directoryPath stringByAppendingPathComponent:fileName];
-	return [[NSFileManager defaultManager] fileExistsAtPath:filePath];
 }
 
 @end

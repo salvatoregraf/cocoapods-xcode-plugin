@@ -108,7 +108,7 @@ static CocoaPods *sharedPlugin = nil;
                                                   keyEquivalent:@""];
         
 		NSMenuItem *createPodspecItem = [[NSMenuItem alloc] initWithTitle:@"Create/Edit Podspec"
-                                                                   action:@selector(createPodspecFile)
+                                                                   action:@selector(createPodspec)
                                                             keyEquivalent:@""];
 
         NSMenuItem *searchPodsItem = [[NSMenuItem alloc] initWithTitle:@"Search Pods"
@@ -146,39 +146,6 @@ static CocoaPods *sharedPlugin = nil;
     self.installDocsItem.state = [CCPPreferences shouldInstallDocsForPods] ? NSOnState : NSOffState;
 }
 
-- (void)createPodfile
-{
-    CCPProject *project = [CCPProject projectForKeyWindow];
-    NSString *podFilePath = project.podfilePath;
-    
-	if (![project hasPodfile]) {
-		NSError *error = nil;
-		[[NSFileManager defaultManager] copyItemAtPath:[self.bundle pathForResource:@"DefaultPodfile" ofType:@""] toPath:podFilePath error:&error];
-		if (error) {
-			[[NSAlert alertWithError:error] runModal];
-		}
-	}
-    
-    [[[NSApplication sharedApplication] delegate] application:[NSApplication sharedApplication]
-                                                     openFile:podFilePath];
-}
-
-- (void)createPodspecFile
-{
-    CCPProject *project = [CCPProject projectForKeyWindow];
-    NSString *podspecPath = project.podspecPath;
-    
-	if (![project hasPodspecFile]) {
-        NSString *podspecTemplate = [NSString stringWithContentsOfFile:[self.bundle pathForResource:@"DefaultPodspec" ofType:@""]
-                                                              encoding:NSUTF8StringEncoding error:nil];
-        
-        [project createPodspecFromTemplate:podspecTemplate];
-    }
-    
-    [[[NSApplication sharedApplication] delegate] application:[NSApplication sharedApplication]
-                                                     openFile:podspecPath];
-}
-
 - (void)integratePods
 {
     [CCPShellHandler runPodWithArguments:@[@"install"]
@@ -195,6 +162,16 @@ static CocoaPods *sharedPlugin = nil;
                                   if ([CCPPreferences shouldInstallDocsForPods])
                                       [CCPDocumentationManager installOrUpdateDocumentationForPods];
                               }];
+}
+
+- (void)createPodfile
+{
+    [[CCPProject projectForKeyWindow] createOrEditPodfile];
+}
+
+- (void)createPodspec
+{
+    [[CCPProject projectForKeyWindow] createOrEditPodspec];
 }
 
 - (void)checkForOutdatedPods

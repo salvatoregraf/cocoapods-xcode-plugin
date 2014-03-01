@@ -163,14 +163,13 @@
 		8A8085A1178B93C4006E56E3 /* CocoaPods */ = {
 			isa = PBXGroup;
 			children = (
+				8AE0AEEA18C15415009CD5E3 /* Preferences */,
 				8AE41E8318C143C000EDB79B /* Xcode Window */,
 				8A6B990F18C13FE000291D7E /* Installer */,
 				8A275F8A178EFD2800FAB421 /* Helpers */,
 				8A8085A7178B93C4006E56E3 /* CocoaPods.h */,
 				8A8085A8178B93C4006E56E3 /* CocoaPods.m */,
 				8A8085A2178B93C4006E56E3 /* Supporting Files */,
-				8AE41E8418C1464800EDB79B /* CCPPreferences.h */,
-				8AE41E8518C1464800EDB79B /* CCPPreferences.m */,
 			);
 			name = CocoaPods;
 			path = cocoadocs;
@@ -186,6 +185,15 @@
 				F2031A5E18214F7C0052204B /* DefaultPodspec */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		8AE0AEEA18C15415009CD5E3 /* Preferences */ = {
+			isa = PBXGroup;
+			children = (
+				8AE41E8418C1464800EDB79B /* CCPPreferences.h */,
+				8AE41E8518C1464800EDB79B /* CCPPreferences.m */,
+			);
+			name = Preferences;
 			sourceTree = "<group>";
 		};
 		8AE41E8318C143C000EDB79B /* Xcode Window */ = {
