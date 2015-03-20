@@ -173,12 +173,55 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
 }
 
 - (void)loadCustomGemPath {
-    NSString *newPath = [self customGemPath];
+    NSString *newPath = [self stringByExpandingGemHomeInPath:[self customGemPath]];
     if (newPath.length > 0) {
         char *oldPath = getenv("PATH");
         newPath = [NSString stringWithFormat:@"%@:%s", newPath, oldPath];
         setenv("PATH", [newPath UTF8String], 1);
     }
+}
+
+- (NSString *)findGemHome {
+  NSString *gemHome = @"";
+  NSData *data;
+  NSTask *task = [[NSTask alloc] init];
+  NSPipe *pipe = [NSPipe pipe];
+    
+  [task setLaunchPath:@"/bin/bash"];
+  [task setArguments: @[@"-l", @"-c", @"gem env gemdir"]];
+  [task setStandardOutput:pipe];
+  [task launch];
+  
+  data = [[pipe fileHandleForReading] readDataToEndOfFile];
+  gemHome = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
+  
+  // strip newlines
+  gemHome = [gemHome stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+
+  return gemHome;
+}
+
+- (NSString *)stringByExpandingGemHomeInPath:(NSString *)path {
+  NSString *newPath = path;
+  NSRange gemhomeRange;
+  
+  NSLog(@"gemhome: %@", [self findGemHome]);
+  
+  if (((gemhomeRange = [path rangeOfString:@"$GEM_HOME"]).location != NSNotFound) ||
+      ((gemhomeRange = [path rangeOfString:@"${GEM_HOME}"]).location != NSNotFound)) {
+
+    NSLog(@"gempath_in: %@", path);
+    NSLog(@"gemhome_var: %@", [path substringWithRange:gemhomeRange]);
+
+    newPath = [path stringByReplacingOccurrencesOfString:[path substringWithRange:gemhomeRange]
+                                              withString:[self findGemHome]
+                                                 options:0
+                                                   range:gemhomeRange];
+  }
+  
+  NSLog(@"newPath: %@", newPath);
+      
+  return newPath;
 }
 
 - (NSString *)customGemPath {
@@ -238,8 +281,9 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
     CCPProject *project = [CCPProject projectForKeyWindow];
     BOOL isDir;
     BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:project.workspacePath isDirectory:&isDir];
+    NSString *expandedGemPath = [self stringByExpandingGemHomeInPath:[self gemPath]];
 
-    [CCPShellHandler runShellCommand:[[self gemPath]stringByAppendingPathComponent:POD_EXECUTABLE]
+    [CCPShellHandler runShellCommand:[expandedGemPath stringByAppendingPathComponent:POD_EXECUTABLE]
 	                        withArgs:@[@"install"]
 	                       directory:[CCPWorkspaceManager currentWorkspaceDirectoryPath]
 	                      completion: ^(NSTask *t) {
@@ -306,7 +350,9 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
 
 - (void)checkForOutdatedPods
 {
-	[CCPShellHandler runShellCommand:[[self gemPath]stringByAppendingPathComponent:POD_EXECUTABLE]
+  NSString *expandedGemPath = [self stringByExpandingGemHomeInPath:[self gemPath]];
+  
+	[CCPShellHandler runShellCommand:[expandedGemPath stringByAppendingPathComponent:POD_EXECUTABLE]
 							withArgs:@[@"outdated"]
 						   directory:[CCPWorkspaceManager currentWorkspaceDirectoryPath]
 						  completion:nil];
@@ -314,7 +360,9 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
 
 - (void)updatePods
 {
-	[CCPShellHandler runShellCommand:[[self gemPath]stringByAppendingPathComponent:POD_EXECUTABLE]
+  NSString *expandedGemPath = [self stringByExpandingGemHomeInPath:[self gemPath]];
+  
+	[CCPShellHandler runShellCommand:[expandedGemPath stringByAppendingPathComponent:POD_EXECUTABLE]
 							withArgs:@[@"update"]
 						   directory:[CCPWorkspaceManager currentWorkspaceDirectoryPath]
 						  completion:nil];
@@ -322,7 +370,9 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
 
 - (void)installCocoaPods
 {
-	[CCPShellHandler runShellCommand:[[self gemPath]stringByAppendingPathComponent:GEM_EXECUTABLE]
+  NSString *expandedGemPath = [self stringByExpandingGemHomeInPath:[self gemPath]];
+  
+	[CCPShellHandler runShellCommand:[expandedGemPath stringByAppendingPathComponent:GEM_EXECUTABLE]
 	                        withArgs:@[@"install", @"cocoapods"]
 	                       directory:[CCPWorkspaceManager currentWorkspaceDirectoryPath]
 	                      completion:nil];
