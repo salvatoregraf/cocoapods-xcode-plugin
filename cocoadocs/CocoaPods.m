@@ -26,6 +26,7 @@
 #import "CCPWorkspaceManager.h"
 #import "CCPDocumentationManager.h"
 #import "CCPProject.h"
+#import "CCPEnvironmentUtils.h"
 
 @interface NSObject (IDEKit)
 + (NSArray *)workspaceWindowControllers;
@@ -173,7 +174,7 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
 }
 
 - (void)loadCustomGemPath {
-    NSString *newPath = [self stringByExpandingGemHomeInPath:[self customGemPath]];
+    NSString *newPath = [CCPEnvironmentUtils stringByAdjustingGemPathForEnvironment:[self customGemPath]];
     if (newPath.length > 0) {
         char *oldPath = getenv("PATH");
         newPath = [NSString stringWithFormat:@"%@:%s", newPath, oldPath];
@@ -181,51 +182,8 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
     }
 }
 
-- (NSString *)findGemHome {
-  NSString *gemHome = @"";
-  NSData *data;
-  NSTask *task = [[NSTask alloc] init];
-  NSPipe *pipe = [NSPipe pipe];
-    
-  [task setLaunchPath:@"/bin/bash"];
-  [task setArguments: @[@"-l", @"-c", @"gem env gemdir"]];
-  [task setStandardOutput:pipe];
-  [task launch];
-  
-  data = [[pipe fileHandleForReading] readDataToEndOfFile];
-  gemHome = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
-  
-  // strip newlines
-  gemHome = [gemHome stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-
-  return gemHome;
-}
-
-- (NSString *)stringByExpandingGemHomeInPath:(NSString *)path {
-  NSString *newPath = path;
-  NSRange gemhomeRange;
-  
-  NSLog(@"gemhome: %@", [self findGemHome]);
-  
-  if (((gemhomeRange = [path rangeOfString:@"$GEM_HOME"]).location != NSNotFound) ||
-      ((gemhomeRange = [path rangeOfString:@"${GEM_HOME}"]).location != NSNotFound)) {
-
-    NSLog(@"gempath_in: %@", path);
-    NSLog(@"gemhome_var: %@", [path substringWithRange:gemhomeRange]);
-
-    newPath = [path stringByReplacingOccurrencesOfString:[path substringWithRange:gemhomeRange]
-                                              withString:[self findGemHome]
-                                                 options:0
-                                                   range:gemhomeRange];
-  }
-  
-  NSLog(@"newPath: %@", newPath);
-      
-  return newPath;
-}
-
 - (NSString *)customGemPath {
-    return [[NSUserDefaults standardUserDefaults] objectForKey:GEM_PATH_KEY];
+  return [[NSUserDefaults standardUserDefaults] objectForKey:GEM_PATH_KEY];
 }
 
 - (NSString *)gemPath {
@@ -281,9 +239,21 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
     CCPProject *project = [CCPProject projectForKeyWindow];
     BOOL isDir;
     BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:project.workspacePath isDirectory:&isDir];
-    NSString *expandedGemPath = [self stringByExpandingGemHomeInPath:[self gemPath]];
-
-    [CCPShellHandler runShellCommand:[expandedGemPath stringByAppendingPathComponent:POD_EXECUTABLE]
+    NSString *expandedGemPath = [CCPEnvironmentUtils stringByAdjustingGemPathForEnvironment:[self gemPath]];
+    NSString *resolvedCommand = [CCPEnvironmentUtils resolveCommand:POD_EXECUTABLE forPath:expandedGemPath];
+  
+    if (resolvedCommand == nil) {
+      NSAlert *alert = [[NSAlert alloc] init];
+      [alert setAlertStyle:NSCriticalAlertStyle];
+      [alert setMessageText:@"Cocoapods command path error"];
+      [alert setInformativeText:[NSString stringWithFormat:@"Resolved command path for \"%@\" is invalid.\n\nExpanded GEM_PATH: %@",
+                                 POD_EXECUTABLE,
+                                 expandedGemPath]];
+      [alert runModal];
+      return;
+    }
+  
+    [CCPShellHandler runShellCommand:resolvedCommand
 	                        withArgs:@[@"install"]
 	                       directory:[CCPWorkspaceManager currentWorkspaceDirectoryPath]
 	                      completion: ^(NSTask *t) {
@@ -350,9 +320,21 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
 
 - (void)checkForOutdatedPods
 {
-  NSString *expandedGemPath = [self stringByExpandingGemHomeInPath:[self gemPath]];
+  NSString *expandedGemPath = [CCPEnvironmentUtils stringByAdjustingGemPathForEnvironment:[self gemPath]];
+  NSString *resolvedCommand = [CCPEnvironmentUtils resolveCommand:POD_EXECUTABLE forPath:expandedGemPath];
+
+  if (resolvedCommand == nil) {
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert setMessageText:@"Cocoapods command path error"];
+    [alert setInformativeText:[NSString stringWithFormat:@"Resolved command path for \"%@\" is invalid.\n\nExpanded GEM_PATH: %@",
+                               POD_EXECUTABLE,
+                               expandedGemPath]];
+    [alert runModal];
+    return;
+  }
   
-	[CCPShellHandler runShellCommand:[expandedGemPath stringByAppendingPathComponent:POD_EXECUTABLE]
+	[CCPShellHandler runShellCommand:resolvedCommand
 							withArgs:@[@"outdated"]
 						   directory:[CCPWorkspaceManager currentWorkspaceDirectoryPath]
 						  completion:nil];
@@ -360,9 +342,21 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
 
 - (void)updatePods
 {
-  NSString *expandedGemPath = [self stringByExpandingGemHomeInPath:[self gemPath]];
+  NSString *expandedGemPath = [CCPEnvironmentUtils stringByAdjustingGemPathForEnvironment:[self gemPath]];
+  NSString *resolvedCommand = [CCPEnvironmentUtils resolveCommand:POD_EXECUTABLE forPath:expandedGemPath];
+
+  if (resolvedCommand == nil) {
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert setMessageText:@"Cocoapods command path error"];
+    [alert setInformativeText:[NSString stringWithFormat:@"Resolved command path for \"%@\" is invalid.\n\nExpanded GEM_PATH: %@",
+                               POD_EXECUTABLE,
+                               expandedGemPath]];
+    [alert runModal];
+    return;
+  }
   
-	[CCPShellHandler runShellCommand:[expandedGemPath stringByAppendingPathComponent:POD_EXECUTABLE]
+	[CCPShellHandler runShellCommand:resolvedCommand
 							withArgs:@[@"update"]
 						   directory:[CCPWorkspaceManager currentWorkspaceDirectoryPath]
 						  completion:nil];
@@ -370,9 +364,21 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
 
 - (void)installCocoaPods
 {
-  NSString *expandedGemPath = [self stringByExpandingGemHomeInPath:[self gemPath]];
+  NSString *expandedGemPath = [CCPEnvironmentUtils stringByAdjustingGemPathForEnvironment:[self gemPath]];
+  NSString *resolvedCommand = [CCPEnvironmentUtils resolveCommand:GEM_EXECUTABLE forPath:expandedGemPath];
   
-	[CCPShellHandler runShellCommand:[expandedGemPath stringByAppendingPathComponent:GEM_EXECUTABLE]
+  if (resolvedCommand == nil) {
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert setMessageText:@"Cocoapods command path error"];
+    [alert setInformativeText:[NSString stringWithFormat:@"Resolved command path for \"%@\" is invalid.\n\nExpanded GEM_PATH: %@",
+                               GEM_EXECUTABLE,
+                               expandedGemPath]];
+    [alert runModal];
+    return;
+  }
+  
+	[CCPShellHandler runShellCommand:resolvedCommand
 	                        withArgs:@[@"install", @"cocoapods"]
 	                       directory:[CCPWorkspaceManager currentWorkspaceDirectoryPath]
 	                      completion:nil];
