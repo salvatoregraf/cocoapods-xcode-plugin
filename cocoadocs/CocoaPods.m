@@ -34,13 +34,13 @@
 @end
 
 
-static NSString *DMMCocoaPodsIntegrateWithDocsKey = @"DMMCocoaPodsIntegrateWithDocs";
-static NSString *DOCSET_ARCHIVE_FORMAT = @"http://cocoadocs.org/docsets/%@/docset.xar";
-static NSString *XAR_EXECUTABLE = @"/usr/bin/xar";
-static NSString *POD_EXECUTABLE = @"pod";
-static NSString *OPEN_EXECUTABLE = @"/usr/bin/open";
-static NSString *GEM_EXECUTABLE = @"gem";
-static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
+static NSString * const DMMCocoaPodsIntegrateWithDocsKey = @"DMMCocoaPodsIntegrateWithDocs";
+static NSString * const DOCSET_ARCHIVE_FORMAT = @"http://cocoadocs.org/docsets/%@/docset.xar";
+static NSString * const XAR_EXECUTABLE = @"/usr/bin/xar";
+static NSString * const POD_EXECUTABLE = @"pod";
+static NSString * const OPEN_EXECUTABLE = @"/usr/bin/open";
+static NSString * const GEM_EXECUTABLE = @"gem";
+static NSString * const GEM_PATH_KEY = @"GEM_PATH_KEY";
 static NSString * const GEM_PATH_DEFAULT = @"/usr/bin";
 
 
