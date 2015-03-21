@@ -25,7 +25,6 @@
 
 @interface CCPEnvironmentUtils : NSObject
 
-+ (NSString *)whichRuby;
 + (NSString *)resolveHomePath;
 + (NSString *)resolveWorkspacePath;
 + (NSString *)resolveGemHome;
