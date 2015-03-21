@@ -41,6 +41,7 @@ static NSString *POD_EXECUTABLE = @"pod";
 static NSString *OPEN_EXECUTABLE = @"/usr/bin/open";
 static NSString *GEM_EXECUTABLE = @"gem";
 static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
+static NSString * const GEM_PATH_DEFAULT = @"/usr/bin";
 
 
 @interface CocoaPods () <NSTextFieldDelegate>
@@ -123,15 +124,18 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
 		                                                    action:@selector(createPodspecFile)
 		                                             keyEquivalent:@""];
 
-        [[self bundle] loadNibNamed:@"PodPathView" owner:self topLevelObjects:nil];
-        self.pathItem = [[NSMenuItem alloc] initWithTitle:@"Set POD_PATH"
-                                                             action:@selector(setPATH)
-                                                            keyEquivalent:@""];
+    [[self bundle] loadNibNamed:@"PodPathView" owner:self topLevelObjects:nil];
+    self.pathItem = [[NSMenuItem alloc] initWithTitle:@"Set POD_PATH"
+                                                         action:@selector(setPATH)
+                                                        keyEquivalent:@""];
 
-        if ([self customGemPath].length > 0) {
-            self.pathField.stringValue = [self customGemPath];
-        }
-        [self.pathItem setView:self.pathView];
+    [self.pathField.cell setPlaceholderString:GEM_PATH_DEFAULT];
+    
+    if ([self customGemPath].length > 0) {
+      self.pathField.stringValue = [self customGemPath];
+    }
+    
+    [self.pathItem setView:self.pathView];
 
         
 		[self.installDocsItem setTarget:self];
@@ -140,17 +144,17 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
 		[self.updatePodsItem setTarget:self];
 		[createPodfileItem setTarget:self];
 		[createPodspecItem setTarget:self];
-        [self.pathItem setTarget:self];
-        
+    [self.pathItem setTarget:self];
+    
 		[[cocoaPodsMenu submenu] addItem:self.installPodsItem];
 		[[cocoaPodsMenu submenu] addItem:self.outdatedPodsItem];
 		[[cocoaPodsMenu submenu] addItem:self.updatePodsItem];
 		[[cocoaPodsMenu submenu] addItem:createPodfileItem];
-        [[cocoaPodsMenu submenu] addItem:createPodspecItem];
+    [[cocoaPodsMenu submenu] addItem:createPodspecItem];
 		[[cocoaPodsMenu submenu] addItem:[NSMenuItem separatorItem]];
 		[[cocoaPodsMenu submenu] addItem:self.installDocsItem];
-        [[cocoaPodsMenu submenu] addItem:[NSMenuItem separatorItem]];
-        [[cocoaPodsMenu submenu] addItem:self.pathItem];
+    [[cocoaPodsMenu submenu] addItem:[NSMenuItem separatorItem]];
+    [[cocoaPodsMenu submenu] addItem:self.pathItem];
 
 		[[topMenuItem submenu] insertItem:cocoaPodsMenu atIndex:[topMenuItem.submenu indexOfItemWithTitle:@"Build For"]];
 	}
@@ -189,7 +193,7 @@ static NSString *GEM_PATH_KEY = @"GEM_PATH_KEY";
 - (NSString *)gemPath {
     NSString *path = [self customGemPath];
     if (path.length == 0) {
-        path = @"/usr/bin";
+        path = GEM_PATH_DEFAULT;
     }
     return path;
 }
