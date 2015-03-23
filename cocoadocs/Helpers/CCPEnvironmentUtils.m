@@ -1,7 +1,7 @@
 //
 //  CCPEnvironmentUtils.m
 //
-//  Copyright (c) 2015 Mark Eissler. http://about.me/markeissler
+//  Copyright (c) 2015 Delisa Mason. http://delisa.me
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to
