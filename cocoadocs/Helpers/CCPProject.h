@@ -23,12 +23,12 @@
 
 @interface CCPProject : NSObject
 
-@property (nonatomic, strong) NSString* directoryPath;
-@property (nonatomic, strong) NSString* podspecPath;
-@property (nonatomic, strong) NSString* podfilePath;
+@property (nonatomic, copy, readonly) NSString* directoryPath;
+@property (nonatomic, copy, readonly) NSString* podspecPath;
+@property (nonatomic, copy, readonly) NSString* podfilePath;
+@property (nonatomic, copy, readonly) NSString* projectName;
+@property (nonatomic, copy, readonly) NSDictionary* infoDictionary;
 @property (nonatomic, readonly) NSString* workspacePath;
-@property (nonatomic, strong) NSString* projectName;
-@property (nonatomic, strong) NSDictionary* infoDictionary;
 
 + (instancetype)projectForKeyWindow;
 

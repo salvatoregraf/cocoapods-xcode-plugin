@@ -48,7 +48,15 @@
 {
     if (self = [self init]) {
         _projectName = name;
-        _podspecPath = [path stringByAppendingPathComponent:[name stringByAppendingString:@".podspec"]];
+        NSString* podspecFileName = [name stringByAppendingString:@".podspec"];
+        NSString* podspecPath = [path stringByAppendingPathComponent:podspecFileName];
+        NSString* podspecParentPath = [[path stringByDeletingLastPathComponent] stringByAppendingPathComponent:podspecFileName];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:podspecPath]) {
+            _podspecPath = podspecPath;
+        }
+        else if ([[NSFileManager defaultManager] fileExistsAtPath:podspecParentPath]) {
+            _podspecPath = podspecParentPath;
+        }
         _directoryPath = path;
 
         NSString* infoPath = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@-Info.plist", _projectName, _projectName]];
@@ -58,6 +66,11 @@
     }
 
     return self;
+}
+
+- (NSString*)workspacePath
+{
+    return [NSString stringWithFormat:@"%@/%@.xcworkspace", self.directoryPath, self.projectName];
 }
 
 - (BOOL)hasPodspecFile
@@ -126,13 +139,6 @@
 {
     NSString* filePath = [self.directoryPath stringByAppendingPathComponent:fileName];
     return [[NSFileManager defaultManager] fileExistsAtPath:filePath];
-}
-
-#pragma mark - Overriden getters
-
-- (NSString*)workspacePath
-{
-    return [NSString stringWithFormat:@"%@/%@.xcworkspace", self.directoryPath, self.projectName];
 }
 
 @end
