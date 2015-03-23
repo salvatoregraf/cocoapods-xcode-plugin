@@ -25,6 +25,6 @@
 
 @interface CCPDocumentationManager : NSObject
 
-+ (NSString *)docsetInstallPath;
++ (NSString*)docsetInstallPath;
 
 @end

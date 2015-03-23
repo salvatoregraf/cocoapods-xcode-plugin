@@ -27,8 +27,8 @@
 
 + (instancetype)consoleForKeyWindow;
 
-- (void)appendText:(NSString *)text;
-- (void)appendText:(NSString *)text color:(NSColor *)color;
+- (void)appendText:(NSString*)text;
+- (void)appendText:(NSString*)text color:(NSColor*)color;
 
 - (void)log:(id)obj;
 - (void)error:(id)obj;

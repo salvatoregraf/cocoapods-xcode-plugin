@@ -1,6 +1,6 @@
 # CocoaPods for Xcode
 
-Manage your dependencies, with minimal command line hack-fu, all from the comfort of Xcode UI.
+Manage your dependencies, with minimal command line hack-fu
 
 ## Features
 
@@ -16,8 +16,8 @@ Manage your dependencies, with minimal command line hack-fu, all from the comfor
 
 ## Prerequisites
 
-- Xcode 5
-- CocoaPods 0.22.1+, by default expected to be installed to `/usr/bin/pod`. The installation path can be changed by editing `GEM PATH` in the `Product > CocoaPods` menu
+- Xcode 5+
+- CocoaPods 0.22.1+, by default expected to be installed to `/usr/bin/pod`. The installation path can be changed by editing `GEM PATH` in the `Product > CocoaPods` menu. More details can be found in the Usage section.
 
 
 ## Install
@@ -36,9 +36,11 @@ OR
 
 Run `rm -r ~/Library/Application\ Support/Developer/Shared/Xcode/Plug-ins/CocoaPods.xcplugin/`
 
-## Custom GEM_PATH setting
+## Usage
 
-You can specify a custom GEM_PATH in the `Product > Cocoapods` menu. The default is `/usr/bin` and emptying any custom value will restore the default. Both `$GEM_HOME` and `$GEM_PATH` are supported here along with `rvm` environments. That means the following settings are valid:
+### Custom GEM_PATH setting
+
+You can specify a custom GEM_PATH in the `Product > Cocoapods` menu. The default is `/usr/bin` and removing a custom value will restore the default. Both `$GEM_HOME` and `$GEM_PATH` are supported, along with `rvm` environments. That means the following settings are valid:
 
 ```
   /usr/bin
@@ -48,7 +50,8 @@ You can specify a custom GEM_PATH in the `Product > Cocoapods` menu. The default
   $GEM_PATH/bin
   ${GEM_PATH}/bin
   /SOME_PARENT/$GEM_HOME/bin
-  /SOME_PARENT/$GEM_PATH/bin```
+  /SOME_PARENT/$GEM_PATH/bin
+```
 
 When specifying `$GEM_PATH` each path component will be expanded during command resolution. That means the following:
 
@@ -64,7 +67,7 @@ During command resolution, each path will be tested (in order) so that the first
 
 Path expansion and command resolution occurs each time before a command is run. For an `rvm` environment, `.ruby-version` and `.ruby-gemset` (in the root project directory) can dynamically alter the environment and Cocoapods supports this behavior.
 
-### Suitable custom GEM_PATH setting for rvm
+#### Using GEM_PATH with rvm
 
 Under most circumstances in an `rvm` environment the following custom `GEM_PATH` setting should be used:
 
@@ -72,6 +75,8 @@ Under most circumstances in an `rvm` environment the following custom `GEM_PATH`
 
 NOTE: Behind the scenes, the `/bin` path element will be converted to `/wrapper` for rvm. If `.rvm` is not found in the expanded path, the `/bin` path element will remain unmodified.
 
+## [Contributors](https://github.com/kattrali/cocoapods-xcode-plugin/graphs/contributors)
+
 ## License
 
-**cocoapods-xcode-plugin** is licensed under the MIT open source license.
+**cocoapods-xcode-plugin** is [licensed under the MIT open source license](https://github.com/kattrali/cocoapods-xcode-plugin/blob/master/LICENSE).

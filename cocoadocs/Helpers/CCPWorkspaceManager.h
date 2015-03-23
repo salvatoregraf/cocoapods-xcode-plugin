@@ -25,9 +25,10 @@
 
 + (id)workspaceForKeyWindow;
 
-+ (NSArray *)installedPodNamesInCurrentWorkspace;
++ (NSArray*)installedPodNamesInCurrentWorkspace;
 
-+ (NSString *)currentWorkspaceDirectoryPath;
-+ (NSString *)directoryPathForWorkspace:(id)workspace;
++ (NSString*)currentWorkspaceDirectoryPath;
+
++ (NSString*)directoryPathForWorkspace:(id)workspace;
 
 @end

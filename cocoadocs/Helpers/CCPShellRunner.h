@@ -1,7 +1,7 @@
 //
-//  CCPEnvironmentUtils.h
+//  CCPShellHandler.h
 //
-//  Copyright (c) 2015 Delisa Mason. http://delisa.me
+//  Copyright (c) 2013 Delisa Mason. http://delisa.me
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to
@@ -23,16 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
-@interface CCPEnvironmentUtils : NSObject
+@interface CCPShellRunner : NSObject
 
-+ (NSString *)resolveHomePath;
-+ (NSString *)resolveWorkspacePath;
-+ (NSString *)resolveGemHome;
-+ (NSString *)resolveGemPath;
-+ (NSString *)resolveCommand:(NSString *)command forPath:(NSString *)path;
-+ (NSString *)stringByAdjustingGemPathForEnvironment:(NSString *)path;
-+ (NSString *)stringByAdjustingRvmBinPath:(NSString *)path;
-+ (NSString *)stringByExpandingGemHomeInPath:(NSString *)path;
-+ (NSString *)stringByExpandingGemPathInPath:(NSString *)path;
++ (void)runShellCommand:(NSString*)command withArgs:(NSArray*)args directory:(NSString*)directory completion:(void (^)(NSTask* t))completion;
 
 @end

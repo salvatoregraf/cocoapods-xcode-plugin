@@ -23,28 +23,27 @@
 
 #import "CCPXCodeConsole.h"
 
-static NSMutableDictionary *sharedInstances;
-
 @interface CCPXCodeConsole ()
 
-@property (retain, nonatomic) NSTextView *console;
-@property (strong, nonatomic) NSString *windowIdentifier;
+@property (retain, nonatomic) NSTextView* console;
+@property (strong, nonatomic) NSString* windowIdentifier;
 
 @end
 
-
 @implementation CCPXCodeConsole
 
-- (id)initWithIdentifier:(NSString *)identifier
-{
-	if (self = [super init]) {
-        _windowIdentifier = identifier;
-	}
+static NSMutableDictionary* sharedInstances;
 
-	return self;
+- (id)initWithIdentifier:(NSString*)identifier
+{
+    if (self = [super init]) {
+        _windowIdentifier = identifier;
+    }
+
+    return self;
 }
 
-- (NSTextView *)console
+- (NSTextView*)console
 {
     if (!_console) {
         _console = [self findConsoleAndActivate];
@@ -54,23 +53,23 @@ static NSMutableDictionary *sharedInstances;
 
 - (void)log:(id)obj
 {
-	[self appendText:[NSString stringWithFormat:@"%@\n", obj]];
+    [self appendText:[NSString stringWithFormat:@"%@\n", obj]];
 }
 
 - (void)error:(id)obj
 {
-	[self appendText:[NSString stringWithFormat:@"%@\n", obj]
+    [self appendText:[NSString stringWithFormat:@"%@\n", obj]
                color:[NSColor redColor]];
 }
 
-- (void)appendText:(NSString *)text
+- (void)appendText:(NSString*)text
 {
-	[self appendText:text color:nil];
+    [self appendText:text color:nil];
 }
 
-- (NSWindow *)window
+- (NSWindow*)window
 {
-    for (NSWindow * window in [NSApp windows]) {
+    for (NSWindow* window in [NSApp windows]) {
         if ([[window description] isEqualToString:self.windowIdentifier]) {
             return window;
         }
@@ -78,27 +77,29 @@ static NSMutableDictionary *sharedInstances;
     return nil;
 }
 
-- (void)appendText:(NSString *)text color:(NSColor *)color
+- (void)appendText:(NSString*)text color:(NSColor*)color
 {
-	if (text.length == 0) return;
-    
-	if (!color)
-		color = self.console.textColor;
-    
-	NSMutableDictionary *attributes = [@{ NSForegroundColorAttributeName: color } mutableCopy];
-	NSFont *font = [NSFont fontWithName:@"Menlo Regular" size:11];
-	if (font) {
-		attributes[NSFontAttributeName] = font;
-	}
-	NSAttributedString *as = [[NSAttributedString alloc] initWithString:text attributes:attributes];
-	NSRange theEnd = NSMakeRange(self.console.string.length, 0);
-	theEnd.location += as.string.length;
-	if (NSMaxY(self.console.visibleRect) == NSMaxY(self.console.bounds)) {
-		[self.console.textStorage appendAttributedString:as];
-		[self.console scrollRangeToVisible:theEnd];
-	} else {
-		[self.console.textStorage appendAttributedString:as];
-	}
+    if (text.length == 0)
+        return;
+
+    if (!color)
+        color = self.console.textColor;
+
+    NSMutableDictionary* attributes = [@{ NSForegroundColorAttributeName : color } mutableCopy];
+    NSFont* font = [NSFont fontWithName:@"Menlo Regular" size:11];
+    if (font) {
+        attributes[NSFontAttributeName] = font;
+    }
+    NSAttributedString* as = [[NSAttributedString alloc] initWithString:text attributes:attributes];
+    NSRange theEnd = NSMakeRange(self.console.string.length, 0);
+    theEnd.location += as.string.length;
+    if (NSMaxY(self.console.visibleRect) == NSMaxY(self.console.bounds)) {
+        [self.console.textStorage appendAttributedString:as];
+        [self.console scrollRangeToVisible:theEnd];
+    }
+    else {
+        [self.console.textStorage appendAttributedString:as];
+    }
 }
 
 #pragma mark - Class Methods
@@ -108,17 +109,18 @@ static NSMutableDictionary *sharedInstances;
     return [self consoleForWindow:[NSApp keyWindow]];
 }
 
-+ (instancetype)consoleForWindow:(NSWindow *)window
++ (instancetype)consoleForWindow:(NSWindow*)window
 {
-    if (window == nil)  return nil;
+    if (window == nil)
+        return nil;
 
-    NSString * key = [window description];
+    NSString* key = [window description];
 
     if (!sharedInstances)
         sharedInstances = [[NSMutableDictionary alloc] init];
 
     if (!sharedInstances[key]) {
-        CCPXCodeConsole *console = [[CCPXCodeConsole alloc] initWithIdentifier:key];
+        CCPXCodeConsole* console = [[CCPXCodeConsole alloc] initWithIdentifier:key];
         [sharedInstances setObject:console forKey:key];
     }
 
@@ -127,43 +129,42 @@ static NSMutableDictionary *sharedInstances;
 
 #pragma mark - Console Detection
 
-
-+ (NSView *)findConsoleViewInView:(NSView *)view
++ (NSView*)findConsoleViewInView:(NSView*)view
 {
     Class consoleClass = NSClassFromString(@"IDEConsoleTextView");
     return [self findViewOfKind:consoleClass inView:view];
 }
 
-+ (NSView *)findViewOfKind:(Class)kind
-                    inView:(NSView *)view
++ (NSView*)findViewOfKind:(Class)kind
+                   inView:(NSView*)view
 {
     if ([view isKindOfClass:kind]) {
-		return view;
-	}
+        return view;
+    }
 
-	for (NSView *v in view.subviews) {
-		NSView *result = [self findViewOfKind:kind
+    for (NSView* v in view.subviews) {
+        NSView* result = [self findViewOfKind:kind
                                        inView:v];
-		if (result) {
-			return result;
-		}
-	}
-	return nil;
+        if (result) {
+            return result;
+        }
+    }
+    return nil;
 }
 
-- (NSTextView *)findConsoleAndActivate
+- (NSTextView*)findConsoleAndActivate
 {
-	NSTextView *console = (NSTextView *)[[self class] findConsoleViewInView:self.window.contentView];
-	if (console
-     && [self.window isKindOfClass:NSClassFromString(@"IDEWorkspaceWindow")]
-     && [self.window.windowController isKindOfClass:NSClassFromString(@"IDEWorkspaceWindowController")]) {
+    NSTextView* console = (NSTextView*)[[self class] findConsoleViewInView:self.window.contentView];
+    if (console
+        && [self.window isKindOfClass:NSClassFromString(@"IDEWorkspaceWindow")]
+        && [self.window.windowController isKindOfClass:NSClassFromString(@"IDEWorkspaceWindowController")]) {
         id editorArea = [self.window.windowController valueForKey:@"editorArea"];
         [editorArea performSelector:@selector(activateConsole:) withObject:self];
-	}
+    }
 
-	[console.textStorage deleteCharactersInRange:NSMakeRange(0, console.textStorage.length)];
-    
-	return console;
+    [console.textStorage deleteCharactersInRange:NSMakeRange(0, console.textStorage.length)];
+
+    return console;
 }
 
 @end

@@ -22,37 +22,36 @@
 //  IN THE SOFTWARE.
 
 #import "CCPWorkspaceManager.h"
-
 #import "CCPProject.h"
-
-static NSString *PODFILE = @"Podfile";
 
 @implementation CCPWorkspaceManager
 
-+ (NSArray *)installedPodNamesInCurrentWorkspace
+static NSString* const PODFILE = @"Podfile";
+
++ (NSArray*)installedPodNamesInCurrentWorkspace
 {
-	NSMutableArray *names = [NSMutableArray new];
-	id workspace = [self workspaceForKeyWindow];
-    
-	id contextManager = [workspace valueForKey:@"_runContextManager"];
-	for (id scheme in[contextManager valueForKey:@"runContexts"]) {
-		NSString *schemeName = [scheme valueForKey:@"name"];
-		if ([schemeName hasPrefix:@"Pods-"]) {
-			[names addObject:[schemeName stringByReplacingOccurrencesOfString:@"Pods-" withString:@""]];
-		}
-	}
-	return names;
+    NSMutableArray* names = [NSMutableArray new];
+    id workspace = [self workspaceForKeyWindow];
+
+    id contextManager = [workspace valueForKey:@"_runContextManager"];
+    for (id scheme in [contextManager valueForKey:@"runContexts"]) {
+        NSString* schemeName = [scheme valueForKey:@"name"];
+        if ([schemeName hasPrefix:@"Pods-"]) {
+            [names addObject:[schemeName stringByReplacingOccurrencesOfString:@"Pods-" withString:@""]];
+        }
+    }
+    return names;
 }
 
-+ (NSString *)currentWorkspaceDirectoryPath
++ (NSString*)currentWorkspaceDirectoryPath
 {
     return [self directoryPathForWorkspace:[self workspaceForKeyWindow]];
 }
 
-+ (NSString *)directoryPathForWorkspace:(id)workspace
++ (NSString*)directoryPathForWorkspace:(id)workspace
 {
-    NSString *workspacePath = [[workspace valueForKey:@"representingFilePath"] valueForKey:@"_pathString"];
-	return [workspacePath stringByDeletingLastPathComponent];
+    NSString* workspacePath = [[workspace valueForKey:@"representingFilePath"] valueForKey:@"_pathString"];
+    return [workspacePath stringByDeletingLastPathComponent];
 }
 
 #pragma mark - Private
@@ -62,16 +61,16 @@ static NSString *PODFILE = @"Podfile";
     return [self workspaceForWindow:[NSApp keyWindow]];
 }
 
-+ (id)workspaceForWindow:(NSWindow *)window
++ (id)workspaceForWindow:(NSWindow*)window
 {
-    NSArray *workspaceWindowControllers = [NSClassFromString(@"IDEWorkspaceWindowController") valueForKey:@"workspaceWindowControllers"];
+    NSArray* workspaceWindowControllers = [NSClassFromString(@"IDEWorkspaceWindowController") valueForKey:@"workspaceWindowControllers"];
 
-	for (id controller in workspaceWindowControllers) {
-		if ([[controller valueForKey:@"window"] isEqual:window]) {
-			return [controller valueForKey:@"_workspace"];
-		}
-	}
-	return nil;
+    for (id controller in workspaceWindowControllers) {
+        if ([[controller valueForKey:@"window"] isEqual:window]) {
+            return [controller valueForKey:@"_workspace"];
+        }
+    }
+    return nil;
 }
 
 @end

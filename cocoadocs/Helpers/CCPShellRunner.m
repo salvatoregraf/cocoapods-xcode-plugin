@@ -21,40 +21,35 @@
 //  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 //  IN THE SOFTWARE.
 
-#import "CCPShellHandler.h"
-
 #import <AppKit/AppKit.h>
-
+#import "CCPShellRunner.h"
 #import "CCPRunOperation.h"
 
-static NSOperationQueue *operationQueue;
+@implementation CCPShellRunner
 
-@implementation CCPShellHandler
-
-+ (void)runShellCommand:(NSString *)command withArgs:(NSArray *)args directory:(NSString *)directory completion:(void (^)(NSTask *t))completion
++ (void)runShellCommand:(NSString*)command withArgs:(NSArray*)args directory:(NSString*)directory completion:(void (^)(NSTask* t))completion
 {
-	if (operationQueue == nil) {
-		operationQueue = [NSOperationQueue new];
-	}
-    
-	NSTask *task = [NSTask new];
-    
-    NSMutableDictionary * environment = [[[NSProcessInfo processInfo] environment] mutableCopy];
-    environment[@"LC_ALL"]=@"en_US.UTF-8";
+    static NSOperationQueue* operationQueue;
+    if (operationQueue == nil) {
+        operationQueue = [NSOperationQueue new];
+    }
+
+    NSTask* task = [NSTask new];
+
+    NSMutableDictionary* environment = [[[NSProcessInfo processInfo] environment] mutableCopy];
+    environment[@"LC_ALL"] = @"en_US.UTF-8";
     [task setEnvironment:environment];
-    
-	task.currentDirectoryPath = directory;
-	task.launchPath = command;
-	task.arguments  = args;
-    
-    
-	CCPRunOperation *operation = [[CCPRunOperation alloc] initWithTask:task];
+
+    task.currentDirectoryPath = directory;
+    task.launchPath = command;
+    task.arguments = args;
+
+    CCPRunOperation* operation = [[CCPRunOperation alloc] initWithTask:task];
     operation.completionBlock = ^{
-        if (completion) {
+        if (completion)
             completion(task);
-        }
     };
-	[operationQueue addOperation:operation];
+    [operationQueue addOperation:operation];
 }
 
 @end
