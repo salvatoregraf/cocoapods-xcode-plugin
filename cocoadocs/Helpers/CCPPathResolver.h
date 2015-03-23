@@ -1,7 +1,7 @@
 //
-//  CCPDocumentationManager.h
+//  CCPEnvironmentUtils.h
 //
-//  Copyright (c) 2013 Delisa Mason. http://delisa.me
+//  Copyright (c) 2015 Delisa Mason. http://delisa.me
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to
@@ -23,8 +23,21 @@
 
 #import <Foundation/Foundation.h>
 
-@interface CCPDocumentationManager : NSObject
+@interface CCPPathResolver : NSObject
 
-+ (NSString*)docsetInstallPath;
+/**
+ *  Find and return the full path of a specified command
+ *
+ *  @param command command to find
+ *  @param path    base path
+ *
+ *  @return resolved path
+ */
++ (NSString*)resolveCommand:(NSString*)command forPath:(NSString*)path;
+
++ (NSString*)stringByAdjustingGemPathForEnvironment:(NSString*)path;
++ (NSString*)stringByAdjustingRvmBinPath:(NSString*)path;
++ (NSString*)stringByExpandingGemHomeInPath:(NSString*)path;
++ (NSString*)stringByExpandingGemPathInPath:(NSString*)path;
 
 @end

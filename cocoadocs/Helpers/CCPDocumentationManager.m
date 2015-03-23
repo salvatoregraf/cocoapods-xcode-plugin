@@ -23,14 +23,13 @@
 
 #import "CCPDocumentationManager.h"
 
-static NSString *RELATIVE_DOCSET_PATH  = @"/Library/Developer/Shared/Documentation/DocSets/";
-
 @implementation CCPDocumentationManager
 
+static NSString* const RELATIVE_DOCSET_PATH = @"/Library/Developer/Shared/Documentation/DocSets/";
 
-+ (NSString *)docsetInstallPath
++ (NSString*)docsetInstallPath
 {
-	return [NSString pathWithComponents:@[NSHomeDirectory(), RELATIVE_DOCSET_PATH]];
+    return [NSString pathWithComponents:@[ NSHomeDirectory(), RELATIVE_DOCSET_PATH ]];
 }
 
 @end
