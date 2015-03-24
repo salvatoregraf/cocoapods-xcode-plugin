@@ -107,7 +107,7 @@ static NSString* const XAR_EXECUTABLE = @"/usr/bin/xar";
                                                           action:@selector(integratePods)
                                                    keyEquivalent:@""];
 
-        self.updatePodsNoRepoUpdateItem = [[NSMenuItem alloc] initWithTitle:@"Update Pods [--no-repo-update]"
+        self.updatePodsNoRepoUpdateItem = [[NSMenuItem alloc] initWithTitle:@"Update Pods (Offline only)"
                                                                      action:@selector(updatePodsNoRepoUpdate)
                                                               keyEquivalent:@""];
         self.outdatedPodsItem = [[NSMenuItem alloc] initWithTitle:@"Check for Outdated Pods"
