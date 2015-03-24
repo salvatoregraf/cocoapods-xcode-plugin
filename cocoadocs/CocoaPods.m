@@ -35,11 +35,11 @@
 
 @interface CocoaPods () <NSTextFieldDelegate>
 
+@property (nonatomic, strong) NSMenuItem* updatePodsNoRepoUpdateItem;
 @property (nonatomic, strong) NSMenuItem* installPodsItem;
 @property (nonatomic, strong) NSMenuItem* outdatedPodsItem;
 @property (nonatomic, strong) NSMenuItem* updatePodsItem;
 @property (nonatomic, strong) NSMenuItem* installDocsItem;
-
 @property (nonatomic, strong) NSMenuItem* pathItem;
 @property (nonatomic, strong) IBOutlet NSTextField* pathField;
 @property (nonatomic, strong) IBOutlet NSView* pathView;
@@ -84,7 +84,7 @@ static NSString* const XAR_EXECUTABLE = @"/usr/bin/xar";
 
 - (BOOL)validateMenuItem:(NSMenuItem*)menuItem
 {
-    if ([menuItem isEqual:self.installPodsItem] || [menuItem isEqual:self.outdatedPodsItem] || [menuItem isEqual:self.updatePodsItem]) {
+    if ([menuItem isEqual:self.installPodsItem] || [menuItem isEqual:self.outdatedPodsItem] || [menuItem isEqual:self.updatePodsItem] || [menuItem isEqual:self.updatePodsNoRepoUpdateItem]) {
         return [[CCPProject projectForKeyWindow] hasPodfile];
     }
 
@@ -107,6 +107,9 @@ static NSString* const XAR_EXECUTABLE = @"/usr/bin/xar";
                                                           action:@selector(integratePods)
                                                    keyEquivalent:@""];
 
+        self.updatePodsNoRepoUpdateItem = [[NSMenuItem alloc] initWithTitle:@"Update Pods (Offline only)"
+                                                                     action:@selector(updatePodsNoRepoUpdate)
+                                                              keyEquivalent:@""];
         self.outdatedPodsItem = [[NSMenuItem alloc] initWithTitle:@"Check for Outdated Pods"
                                                            action:@selector(checkForOutdatedPods)
                                                     keyEquivalent:@""];
@@ -136,6 +139,7 @@ static NSString* const XAR_EXECUTABLE = @"/usr/bin/xar";
 
         [self.pathItem setView:self.pathView];
 
+        [self.updatePodsNoRepoUpdateItem setTarget:self];
         [self.installDocsItem setTarget:self];
         [self.installPodsItem setTarget:self];
         [self.outdatedPodsItem setTarget:self];
@@ -147,6 +151,7 @@ static NSString* const XAR_EXECUTABLE = @"/usr/bin/xar";
         [[cocoaPodsMenu submenu] addItem:self.installPodsItem];
         [[cocoaPodsMenu submenu] addItem:self.outdatedPodsItem];
         [[cocoaPodsMenu submenu] addItem:self.updatePodsItem];
+        [[cocoaPodsMenu submenu] addItem:self.updatePodsNoRepoUpdateItem];
         [[cocoaPodsMenu submenu] addItem:createPodfileItem];
         [[cocoaPodsMenu submenu] addItem:createPodspecItem];
         [[cocoaPodsMenu submenu] addItem:[NSMenuItem separatorItem]];
@@ -302,6 +307,11 @@ static NSString* const XAR_EXECUTABLE = @"/usr/bin/xar";
 - (void)installCocoaPods
 {
     [self runPodWithArguments:@[ @"install", @"cocoapods" ]];
+}
+
+- (void)updatePodsNoRepoUpdate
+{
+    [self runPodWithArguments:@[ @"update", @"--no-repo-update" ]];
 }
 
 - (void)installOrUpdateDocSetsForPods
