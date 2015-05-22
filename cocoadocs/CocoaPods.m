@@ -75,7 +75,9 @@ static NSString* const XAR_EXECUTABLE = @"/usr/bin/xar";
     if (self = [super init]) {
         _bundle = plugin;
         [self loadCustomGemPath];
-        [self addMenuItems];
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self addMenuItems];
+        }];
     }
     return self;
 }
