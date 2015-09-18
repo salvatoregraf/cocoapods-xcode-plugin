@@ -38,6 +38,7 @@
 
     NSMutableDictionary* environment = [[[NSProcessInfo processInfo] environment] mutableCopy];
     environment[@"LC_ALL"] = @"en_US.UTF-8";
+    environment[@"COCOAPODS_DISABLE_STATS"] = @"1";
     [task setEnvironment:environment];
 
     task.currentDirectoryPath = directory;
