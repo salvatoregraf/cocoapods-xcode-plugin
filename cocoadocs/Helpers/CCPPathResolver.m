@@ -25,54 +25,38 @@
 
 @implementation CCPPathResolver
 
-+ (NSString*)stringByAdjustingGemPathForEnvironment:(NSString*)path
-{
-    NSString* newPath = path;
-
-    newPath = [self stringByExpandingGemHomeInPath:newPath];
-
++ (NSString *)stringByAdjustingGemPathForEnvironment:(NSString *)path {
+    NSString *newPath = [self stringByExpandingGemHomeInPath:path];
     newPath = [self stringByExpandingGemPathInPath:newPath];
-
-    newPath = [self stringByAdjustingRvmBinPath:newPath];
-
-    return newPath;
+    return [self stringByAdjustingRvmBinPath:newPath];
 }
 
-+ (NSString*)resolveHomePath
-{
-    NSString* userId = [[[NSProcessInfo processInfo] environment] objectForKey:@"USER"];
-    NSString* userHomePath = [[NSString stringWithFormat:@"~%@", userId] stringByExpandingTildeInPath];
-
++ (NSString *)resolveHomePath {
+    NSString *userId = [[[NSProcessInfo processInfo] environment] objectForKey:@"USER"];
+    NSString *userHomePath = [[NSString stringWithFormat:@"~%@", userId] stringByExpandingTildeInPath];
     return userHomePath;
 }
 
-+ (NSString*)resolveWorkspacePath
-{
-    NSArray* workspaceWindowControllers = [NSClassFromString(@"IDEWorkspaceWindowController")
-        valueForKey:@"workspaceWindowControllers"];
-
-    id workspace;
++ (NSString *)resolveWorkspacePath {
+    NSArray *workspaceWindowControllers = [NSClassFromString(@"IDEWorkspaceWindowController") valueForKey:@"workspaceWindowControllers"];
 
     for (id controller in workspaceWindowControllers) {
         if ([[controller valueForKey:@"window"] isEqual:[NSApp keyWindow]]) {
-            workspace = [controller valueForKey:@"_workspace"];
+            id workspace = [controller valueForKey:@"_workspace"];
+            return [[workspace valueForKey:@"representingFilePath"] valueForKey:@"_pathString"];
         }
     }
 
-    NSString* workspacePath = [[workspace valueForKey:@"representingFilePath"]
-        valueForKey:@"_pathString"];
-
-    return workspacePath;
+    return nil;
 }
 
-+ (NSString*)resolveCommand:(NSString*)command forPath:(NSString*)path
-{
-    NSArray* pathArray = [path componentsSeparatedByString:@":"];
-    NSString* resolvedCommand = nil;
-    NSFileManager* fileManager = [NSFileManager defaultManager];
++ (NSString *)resolveCommand:(NSString *)command forPath:(NSString *)path {
+    NSArray *pathArray = [path componentsSeparatedByString:@":"];
+    NSString *resolvedCommand = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
 
-    for (NSString* pathComponent in pathArray) {
-        NSString* pathComponentWithCommand = [pathComponent stringByAppendingPathComponent:command];
+    for (NSString *pathComponent in pathArray) {
+        NSString *pathComponentWithCommand = [pathComponent stringByAppendingPathComponent:command];
         if ([fileManager isExecutableFileAtPath:pathComponentWithCommand]) {
             resolvedCommand = pathComponentWithCommand;
             break;
@@ -82,97 +66,68 @@
     return resolvedCommand;
 }
 
-+ (NSString*)resolveGemHome
-{
-    NSString* gemHome = @"";
-    NSData* data;
-    NSTask* task = [[NSTask alloc] init];
-    NSPipe* pipe = [NSPipe pipe];
-
-    NSString* workspacePath = [self resolveWorkspacePath];
-    if (!workspacePath) {
-        workspacePath = [self resolveHomePath];
-    }
-
-    NSString* bashCommandString = [NSString stringWithFormat:@"cd %@; gem env gemdir;",
-                                            workspacePath];
-
-    [task setLaunchPath:@"/bin/bash"];
-    [task setArguments:@[ @"-l", @"-c", bashCommandString ]];
-    [task setStandardOutput:pipe];
-    [task launch];
-
-    data = [[pipe fileHandleForReading] readDataToEndOfFile];
-    gemHome = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
-
-    // strip newlines
-    gemHome = [gemHome stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-
-    return gemHome;
++ (NSString *)resolveGemHome {
+    return [self resolveGemEnvironmentVariable:@"gemdir"];
 }
 
-+ (NSString*)resolveGemPath
-{
-    NSString* gemPath = @"";
-    NSData* data;
-    NSTask* task = [[NSTask alloc] init];
-    NSPipe* pipe = [NSPipe pipe];
++ (NSString *)resolveGemPath {
+    return [self resolveGemEnvironmentVariable:@"gempath"];
+}
 
-    NSString* workspacePath = [self resolveWorkspacePath];
-    if (!workspacePath) {
++ (NSString *)resolveGemEnvironmentVariable:(NSString *)variable {
+    NSString *workspacePath = [self resolveWorkspacePath];
+    if (!workspacePath)
         workspacePath = [self resolveHomePath];
-    }
 
-    NSString* bashCommandString = [NSString stringWithFormat:@"cd %@; gem env gempath;", workspacePath];
+    NSString *command = [NSString stringWithFormat:@"cd %@; gem env %@;", workspacePath, variable];
+    NSPipe *pipe = [self outputPipeForBashTaskWithCommand:command];
+
+    NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
+    NSString *gemPath = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
+
+    return [gemPath stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+}
+
++ (NSPipe *)outputPipeForBashTaskWithCommand:(NSString *)command {
+    NSTask *task = [NSTask new];
+    NSPipe *pipe = [NSPipe pipe];
 
     [task setLaunchPath:@"/bin/bash"];
-    [task setArguments:@[ @"-l", @"-c", bashCommandString ]];
+    [task setArguments:@[ @"-l", @"-c", command ]];
     [task setStandardOutput:pipe];
     [task launch];
-
-    data = [[pipe fileHandleForReading] readDataToEndOfFile];
-    gemPath = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
-
-    // strip newlines
-    gemPath = [gemPath stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-
-    return gemPath;
+    return pipe;
 }
 
 /**
- *  adjust path rvm, replacing /bin with /wrappers
+ *  adjust path rvm, adding /wrappers in addition to /bin
  *
  *  @param path path containing possible replacements
  *
  *  @return updated path
  */
-+ (NSString*)stringByAdjustingRvmBinPath:(NSString*)path
-{
-    NSString* newPath = path;
-    NSArray* pathArray = [path componentsSeparatedByString:@":"];
-    NSMutableArray* pathArrayAdjusted = [[NSMutableArray alloc] init];
-
-    // path could consist of more than one component separated by ':' char!
-    if ([pathArray count] > 0) {
-        for (NSString* pathComponent in pathArray) {
++ (NSString *)stringByAdjustingRvmBinPath:(NSString *)path {
+    NSArray *paths = [path componentsSeparatedByString:@":"];
+    NSMutableArray *adjustedPaths = [paths mutableCopy];
+    if ([paths count] > 0) {
+        int adjustmentsMade = 0;
+        for (int i = 0; i < paths.count; i++) {
+            NSString *pathComponent = paths[i];
             NSRange rangeRvm = [pathComponent rangeOfString:@".rvm"];
             NSRange rangeBin = [pathComponent rangeOfString:@"/bin" options:NSBackwardsSearch];
-            NSString* pathComponentAdjusted = pathComponent;
 
             if (rangeRvm.location != NSNotFound && rangeBin.location != NSNotFound) {
-                pathComponentAdjusted = [pathComponent stringByReplacingOccurrencesOfString:[pathComponent substringWithRange:rangeBin]
-                                                                                 withString:@"/wrappers"
-                                                                                    options:0
-                                                                                      range:rangeBin];
+                NSString *adjustedPathComponent = [pathComponent stringByReplacingOccurrencesOfString:[pathComponent substringWithRange:rangeBin]
+                                                                                           withString:@"/wrappers"
+                                                                                              options:0
+                                                                                                range:rangeBin];
+                [adjustedPaths insertObject:adjustedPathComponent atIndex:i + adjustmentsMade];
+                adjustmentsMade++;
             }
-
-            [pathArrayAdjusted addObject:pathComponentAdjusted];
         }
-
-        newPath = [pathArrayAdjusted componentsJoinedByString:@":"];
     }
 
-    return newPath;
+    return [adjustedPaths componentsJoinedByString:@":"];
 }
 
 /**
@@ -182,23 +137,10 @@
  *
  *  @return path with GEM_HOME references replaced
  */
-+ (NSString*)stringByExpandingGemHomeInPath:(NSString*)path
-{
-    NSString* newPath = path;
-    NSRange rangeGemHome;
-
-    if (((rangeGemHome = [path rangeOfString:@"$GEM_HOME"]).location != NSNotFound) || ((rangeGemHome = [path rangeOfString:@"${GEM_HOME}"]).location != NSNotFound)) {
-
-        newPath = [path stringByReplacingOccurrencesOfString:[path substringWithRange:rangeGemHome]
-                                                  withString:[self resolveGemHome]
-                                                     options:0
-                                                       range:rangeGemHome];
-
-        // cleanup
-        newPath = [newPath stringByStandardizingPath];
-    }
-
-    return newPath;
++ (NSString *)stringByExpandingGemHomeInPath:(NSString *)path {
+    NSString *gemHome = [self resolveGemHome];
+    NSString *newPath = [path stringByReplacingOccurrencesOfString:@"$GEM_HOME" withString:gemHome];
+    return [[newPath stringByReplacingOccurrencesOfString:@"${GEM_HOME}" withString:gemHome] stringByStandardizingPath];
 }
 
 /**
@@ -208,32 +150,10 @@
  *
  *  @return path with GEM_PATH references replaced
  */
-+ (NSString*)stringByExpandingGemPathInPath:(NSString*)path
-{
-    NSString* newPath = path;
-    NSRange rangeGemPath;
-
-    if (((rangeGemPath = [path rangeOfString:@"$GEM_PATH"]).location != NSNotFound) || ((rangeGemPath = [path rangeOfString:@"${GEM_PATH}"]).location != NSNotFound)) {
-
-        NSString* pathFirstPart = [path substringToIndex:rangeGemPath.location];
-        NSString* pathLastPart = [path substringFromIndex:rangeGemPath.location + rangeGemPath.length];
-        NSString* gemPath = [self resolveGemPath];
-        NSArray* gemPathArray = [gemPath componentsSeparatedByString:@":"];
-        NSMutableArray* gemPathArrayAdjusted = [[NSMutableArray alloc] init];
-
-        // prepend pathFirstPart, append pathLastPart to each component in gemPath
-        for (NSString* pathComponent in gemPathArray) {
-            NSString* pathComponentAdjusted = [NSString stringWithFormat:@"%@%@%@", pathFirstPart, pathComponent, pathLastPart];
-            [gemPathArrayAdjusted addObject:pathComponentAdjusted];
-        }
-
-        newPath = [gemPathArrayAdjusted componentsJoinedByString:@":"];
-
-        // cleanup
-        newPath = [newPath stringByStandardizingPath];
-    }
-
-    return newPath;
++ (NSString *)stringByExpandingGemPathInPath:(NSString *)path {
+    NSString *gemPath = [self resolveGemPath];
+    NSString *newPath = [path stringByReplacingOccurrencesOfString:@"$GEM_PATH" withString:gemPath];
+    return [[newPath stringByReplacingOccurrencesOfString:@"${GEM_PATH}" withString:gemPath] stringByStandardizingPath];
 }
 
 @end
