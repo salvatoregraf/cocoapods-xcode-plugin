@@ -215,6 +215,7 @@ static NSString* const XAR_EXECUTABLE = @"/usr/bin/xar";
 
 - (void)integratePods
 {
+    NSString* const CPFallbackPodPath = @"/usr/local/bin";
     CCPProject* project = [CCPProject projectForKeyWindow];
     BOOL isDir;
     BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:project.workspacePath isDirectory:&isDir];
@@ -222,12 +223,15 @@ static NSString* const XAR_EXECUTABLE = @"/usr/bin/xar";
     NSString* resolvedCommand = [CCPPathResolver resolveCommand:POD_EXECUTABLE forPath:expandedGemPath];
 
     if (resolvedCommand == nil) {
-        NSAlert* alert = [[NSAlert alloc] init];
-        [alert setAlertStyle:NSCriticalAlertStyle];
-        [alert setMessageText:RESOLVER_TITLE_TEXT];
-        [alert setInformativeText:[NSString stringWithFormat:RESOLVER_ERROR_FORMAT, POD_EXECUTABLE, expandedGemPath]];
-        [alert runModal];
-        return;
+        resolvedCommand = [CCPPathResolver resolveCommand:POD_EXECUTABLE forPath:CPFallbackPodPath];
+        if (resolvedCommand == nil) {
+            NSAlert* alert = [[NSAlert alloc] init];
+            [alert setAlertStyle:NSCriticalAlertStyle];
+            [alert setMessageText:RESOLVER_TITLE_TEXT];
+            [alert setInformativeText:[NSString stringWithFormat:RESOLVER_ERROR_FORMAT, POD_EXECUTABLE, expandedGemPath]];
+            [alert runModal];
+            return;
+        }
     }
 
     [CCPShellRunner runShellCommand:resolvedCommand
