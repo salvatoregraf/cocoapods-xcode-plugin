@@ -74,12 +74,22 @@ static NSString* const XAR_EXECUTABLE = @"/usr/bin/xar";
 {
     if (self = [super init]) {
         _bundle = plugin;
-        [self loadCustomGemPath];
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [self addMenuItems];
-        }];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(xcodeDidLoad)
+                                                     name:NSApplicationDidFinishLaunchingNotification
+                                                   object:nil];
     }
     return self;
+}
+
+- (void)xcodeDidLoad {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:NSApplicationDidFinishLaunchingNotification
+                                                  object:nil];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [self loadCustomGemPath];
+        [self addMenuItems];
+    }];
 }
 
 #pragma mark - Menu
